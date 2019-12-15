@@ -3,8 +3,12 @@ import struct
 import sys
 import json
 from Crypto.PublicKey import RSA
+from Crypto.Cipher import AES
 from Crypto.Cipher import PKCS1_OAEP
 import rsa as rsa_
+import base64
+from Crypto.Util.Padding import pad
+from events import Events
 
 from threading import Thread
 
@@ -72,24 +76,51 @@ class Cryptographer(object):
         self.serverKey = RSA.import_key(key)
         self.cipher_rsa = PKCS1_OAEP.new(self.serverKey)
 
+    def setupAES(self, key, iv):
+        self.aes_key = key
+        self.aes_iv = iv
 
+    def encrypt_AES(self, msg):
+
+        self.cipher_aes = AES.new(self.aes_key, AES.MODE_CBC, self.aes_iv)
+        buffer = bytearray()
+
+        part = self.cipher_aes.encrypt(pad(msg, AES.block_size))
+        buffer += struct.pack("<I", len(msg))
+        buffer += part
+        return buffer;
+
+    def decrypt_AES(self, msg):
+        self.cipher_aes = AES.new(self.aes_key, AES.MODE_CBC, self.aes_iv)
+        len = struct.unpack('<i', msg[:4])[0]
+        original = pad(self.cipher_aes.decrypt(msg[4:]), AES.block_size)[:len-1]
+        return original
 
 class SocketClient(Thread):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     stopFlag = False
-    isCrypted = False
+    isCrypted_RSA = False
+    isCrypted_AES = False
 
     def __init__(self, address):
         self.address = address
-        self.sock.connect(self.address)
+        self.events = Events(("onClosed", "onConnect", "onMessageReceived"))
+
         self.crypto = Cryptographer()
         Thread.__init__(self)
         self.start()
 
     def run(self):
         try:
+            self.sock.connect(self.address)
+        except:
+            print("Connection error.")
+            self.close()
+            return
 
-            print("Connected to the server")
+
+        try:
+
             self.sendKey()
             while not self.stopFlag:
                 data = self.sock.recv(4)
@@ -123,24 +154,35 @@ class SocketClient(Thread):
                     continue
 
 
-                if not self.isCrypted:
+                if not self.isCrypted_RSA and not self.isCrypted_AES :
+                    content = self.crypto.decrypt(content)
                     message = content.decode("utf-8")
                     command = json.loads(message)
                     #print("Server sent his key: " + command["key"])
-                    self.crypto.setServerKey(command["key"])
-                    self.isCrypted = True
-                    print("Connection crypted correctly")
-                    testJson = {"id": 1,
-                                 "test" : "ciao"
+                    if not command["id"] == 0:
+                        print("Invalid starting message from the server (Expected keys).")
+                        self.close()
+                        return
+
+                    self.crypto.setServerKey(command["key-RSA"])
+                    self.crypto.setupAES(base64.b64decode(command["key-AES"]), base64.b64decode(command["iv-AES"]))
+
+                    self.isCrypted_RSA = True
+                    self.isCrypted_AES = True
+
+                    self.events.onConnect()
+
+                    testJson = {"id": -1,
+                                 "message" : "Ciao sono pollo e sono arrivato qui tramite AES."
                                 }
                     testJson = json.dumps(testJson)
 
                     self.sendMessage(testJson)
-                else:
-                    content = self.crypto.decrypt(content)
-                    #print(content)
+
+                elif self.isCrypted_AES:
+                    content = self.crypto.decrypt_AES(content)
                     message = content.decode("utf-8")
-                    print("Received with success this message: " + message)
+                    self.events.onMessageReceived(message)
 
         except ConnectionRefusedError:
             print("An exception occurred: " + str(sys.stderr))
@@ -156,15 +198,16 @@ class SocketClient(Thread):
             part2 = struct.pack("<I", len(message))
             content = bytes(message, 'utf-8')
 
-            if self.isCrypted:
-                content = self.crypto.encrypt(content)
+            if self.isCrypted_AES:
+                content = self.crypto.encrypt_AES(content)
                 part2 = struct.pack("<I", len(content))
 
             part4 = struct.pack("<I", 43214321)
 
             self.sock.sendall(part1 + part2 + content + part4)
 
-            print("Message sent to the server: " + message)
+            #print("Message sent to the server: " + message)
+
 
         except ConnectionRefusedError:
             print("An exception occurred: " + str(sys.stderr))
@@ -179,6 +222,6 @@ class SocketClient(Thread):
 
     def close(self):
         self.stopFlag = True
-        self.sock.shutdown(socket.SHUT_RDWR)
+        #self.sock.shutdown(socket.SHUT_RDWR)
         self.sock.close()
-        print("Socket closed.")
+        self.events.onClosed()
