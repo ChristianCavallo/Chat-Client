@@ -2,6 +2,7 @@ import socket
 import struct
 import sys
 import json
+
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES
 from Crypto.Cipher import PKCS1_OAEP
@@ -21,6 +22,7 @@ class Cryptographer(object):
         self.publickey = pubkey.save_pkcs1("PEM").decode("utf-8")
         self.key = RSA.import_key(privatekey.save_pkcs1("PEM").decode("utf-8"))
         self.decipher = PKCS1_OAEP.new(self.key)
+
     def encrypt(self, message):
         # Impostare i primi 6 bytes di cui 5 -> Dimensione chiave
 
@@ -37,23 +39,23 @@ class Cryptographer(object):
 
         remainBytes = len(message)
         index = 0
-        #print("Remaining: " + str(remainBytes))
+        # print("Remaining: " + str(remainBytes))
         while remainBytes > 0:
             left = 80 * index
             right = left + 80
 
             if remainBytes < 80:
                 right = left + len(message)
-            #print("Left: " + str(left) + " Right: " + str(right))
+            # print("Left: " + str(left) + " Right: " + str(right))
             buffer += self.cipher_rsa.encrypt(message[left:right])
             index += 1
             remainBytes -= 80
 
-        #print("Crypting keytimes " + str(keyTimes) + " Payload: " + str(len(buffer)) )
+        # print("Crypting keytimes " + str(keyTimes) + " Payload: " + str(len(buffer)) )
         return buffer
 
     def decrypt(self, message):
-        keyTimes =  struct.unpack('<i', message[:4])[0]
+        keyTimes = struct.unpack('<i', message[:4])[0]
         keySize = 128
         remainBytes = keySize * keyTimes
         buffer = bytearray()
@@ -61,11 +63,11 @@ class Cryptographer(object):
         while remainBytes > 0:
             left = keySize * index + 4
             if remainBytes < keySize:
-                right = left + remainBytes -1
+                right = left + remainBytes - 1
             else:
                 right = left + 128
 
-            #print("Left: " + str(left) + " Right: " + str(right))
+            # print("Left: " + str(left) + " Right: " + str(right))
             part = self.decipher.decrypt(message[left:right])
             buffer += part
             index += 1
@@ -93,16 +95,16 @@ class Cryptographer(object):
     def decrypt_AES(self, msg):
         self.cipher_aes = AES.new(self.aes_key, AES.MODE_CBC, self.aes_iv)
         len = struct.unpack('<i', msg[:4])[0]
-        original = pad(self.cipher_aes.decrypt(msg[4:]), AES.block_size)[:len-1]
+        original = pad(self.cipher_aes.decrypt(msg[4:]), AES.block_size)[:len - 1]
         return original
 
-class SocketClient(Thread):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    stopFlag = False
-    isCrypted_RSA = False
-    isCrypted_AES = False
 
+class SocketClient(Thread):
     def __init__(self, address):
+        self.isCrypted_AES = False
+        self.isCrypted_RSA = False
+        self.stopFlag = False
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.address = address
         self.events = Events(("onClosed", "onConnect", "onMessageReceived"))
 
@@ -110,86 +112,90 @@ class SocketClient(Thread):
         Thread.__init__(self)
         self.start()
 
+    def reset(self):
+        self.isCrypted_AES = False
+        self.isCrypted_RSA = False
+        self.stopFlag = False
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.crypto = Cryptographer()
+
     def run(self):
-        try:
-            self.sock.connect(self.address)
-        except:
-            print("Connection error.")
+        while True:
+            try:
+                self.sock.connect(self.address)
+            except:
+                print("Can't reach the server.")
+                self.close()
+                continue
+
+            try:
+                self.sendKey()
+
+                while not self.stopFlag:
+                    data = self.sock.recv(4)
+
+                    if not len(data) > 0:
+                        break
+
+                    num = struct.unpack('<i', data[:4])[0]
+                    if num != 12344321:
+                        print("Wrong sync message. Received: " + str(num))
+                        continue
+
+                    data = self.sock.recv(4)
+                    num = struct.unpack('<i', data[:4])[0]
+
+                    if num < 0 or num > 1000000:
+                        print("The length of payload isn't      ormal: " + str(num))
+                        continue
+
+                    content = self.sock.recv(num)
+                    if len(content) != num:
+                        print("Received " + len(content) + " but expected " + str(num))
+                        continue
+
+                    data = self.sock.recv(4)
+                    num = struct.unpack('<i', data[:4])[0]
+                    if num != 43214321:
+                        print("Wrong sync message. Waiting for a new one")
+                        continue
+
+                    if not self.isCrypted_RSA and not self.isCrypted_AES:
+                        content = self.crypto.decrypt(content)
+                        message = content.decode("utf-8")
+                        command = json.loads(message)
+                        # print("Server sent his key: " + command["key"])
+                        if not command["id"] == 0:
+                            print("Invalid starting message from the server (Expected keys).")
+                            self.close()
+                            return
+
+                        self.crypto.setServerKey(command["key-RSA"])
+                        self.crypto.setupAES(base64.b64decode(command["key-AES"]), base64.b64decode(command["iv-AES"]))
+
+                        self.isCrypted_RSA = True
+                        self.isCrypted_AES = True
+
+                        self.events.onConnect()
+
+                        testJson = {"id": -1,
+                                    "message": "Ciao sono pollo e sono arrivato qui tramite AES."
+                                    }
+                        testJson = json.dumps(testJson)
+
+                        self.sendMessage(testJson)
+
+                    elif self.isCrypted_AES:
+                        content = self.crypto.decrypt_AES(content)
+                        message = content.decode("utf-8")
+                        self.events.onMessageReceived(message)
+
+            except:
+                print("An exception occurred: " + str(sys.stderr))
+                # self.close()
+
+            print("Closing the socket cause receive was 0.")
             self.close()
-            return
-
-
-        try:
-
-            self.sendKey()
-            while not self.stopFlag:
-                data = self.sock.recv(4)
-
-                if not len(data) > 0:
-                    break
-
-                num = struct.unpack('<i', data[:4])[0]
-                if num != 12344321:
-                    print("Wrong sync message. Received: " + str(num))
-                    continue
-
-                data = self.sock.recv(4)
-                num = struct.unpack('<i', data[:4])[0]
-
-                if num < 0 or num > 1000000:
-                    print("The length of payload isn't      ormal: " + str(num))
-                    continue
-
-                content = self.sock.recv(num)
-                if len(content) != num:
-                    print("Received " + len(content) + " but expected " + str(num))
-                    continue
-
-
-
-                data = self.sock.recv(4)
-                num = struct.unpack('<i', data[:4])[0]
-                if num != 43214321:
-                    print("Wrong sync message. Waiting for a new one")
-                    continue
-
-
-                if not self.isCrypted_RSA and not self.isCrypted_AES :
-                    content = self.crypto.decrypt(content)
-                    message = content.decode("utf-8")
-                    command = json.loads(message)
-                    #print("Server sent his key: " + command["key"])
-                    if not command["id"] == 0:
-                        print("Invalid starting message from the server (Expected keys).")
-                        self.close()
-                        return
-
-                    self.crypto.setServerKey(command["key-RSA"])
-                    self.crypto.setupAES(base64.b64decode(command["key-AES"]), base64.b64decode(command["iv-AES"]))
-
-                    self.isCrypted_RSA = True
-                    self.isCrypted_AES = True
-
-                    self.events.onConnect()
-
-                    testJson = {"id": -1,
-                                 "message" : "Ciao sono pollo e sono arrivato qui tramite AES."
-                                }
-                    testJson = json.dumps(testJson)
-
-                    self.sendMessage(testJson)
-
-                elif self.isCrypted_AES:
-                    content = self.crypto.decrypt_AES(content)
-                    message = content.decode("utf-8")
-                    self.events.onMessageReceived(message)
-
-        except ConnectionRefusedError:
-            print("An exception occurred: " + str(sys.stderr))
-            self.close()
-
-        print("Closing the socket cause receive was 0.")
-        self.close()
 
     def sendMessage(self, message):
 
@@ -206,9 +212,7 @@ class SocketClient(Thread):
 
             self.sock.sendall(part1 + part2 + content + part4)
 
-            #print("Message sent to the server: " + message)
-
-
+            # print("Message sent to the server: " + message)
         except ConnectionRefusedError:
             print("An exception occurred: " + str(sys.stderr))
             self.close()
@@ -222,6 +226,7 @@ class SocketClient(Thread):
 
     def close(self):
         self.stopFlag = True
-        #self.sock.shutdown(socket.SHUT_RDWR)
+        # self.sock.shutdown(socket.SHUT_RDWR)
         self.sock.close()
         self.events.onClosed()
+        self.reset()
