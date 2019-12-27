@@ -172,12 +172,6 @@ class SocketClient(Thread):
 
                     self.events.onConnect()
 
-                    testJson = {"id": -1,
-                                 "message" : "Ciao sono pollo e sono arrivato qui tramite AES."
-                                }
-                    testJson = json.dumps(testJson)
-
-                    self.sendMessage(testJson)
 
                 elif self.isCrypted_AES:
                     content = self.crypto.decrypt_AES(content)
