@@ -15,22 +15,34 @@ from Utils import Cacher
 def onConnect():
     print("Connected")
 
-
 def onClosed():
     print("Connection closed")
 
-
 def onMessageReceived(message):
-    # Questa funzione viene chiamata ogni qual volta che arriva un messaggio dal server
+    #Questa funzione viene chiamata ogni qual volta che arriva un messaggio dal server
     print("Received message: " + message)
-    j = json.loads(message)  # Carico il json
-    id = j["id"]  # Leggo l'id
+    j = json.loads(message) #Carico il json
+    id = j["id"] #Leggo l'id
 
-    if id == -1:  # Il command test ha id = -1
+    if id == -1: #Il command test ha id = -1
         print("Received a test: " + j["message"])
 
-    if id == 21:  # Una response di login
-        print("Login response")
+    if id == 21: # Una response di login
+        #Qua riceviamo la risposta giusto?si, si chiama response
+        print("Received message" + str(j))
+        id = j["user-id"] #lo avevamo chiamato cosi l'id giusto?sisi.. poteva essere null oppure qualcosa.. giusto?
+
+        #semplice no? no....per me sembra visto semplice fatto da te xD
+        if id is None:
+            print("Wrong login!")
+
+        else:
+            name = j["name"]
+            surname = j["surname"]
+
+            print("Login success! " + id + "  " + name + " " + surname)
+
+
 
     if id == 31: # Add contact response
         result = j["result"]
@@ -540,6 +552,24 @@ ui.logoutToolButton.clicked.connect(logoutButton_clicked)
 
 # ===========================================================================
 
+
+#=============== LOGIN SIGNALS ======================
+
+def login():
+    message = {"id": 20,
+               "email": ui.lineEdit_email.text(),
+               "password": ui.lineEdit_password.text()
+               }
+    print("Sending a login request with data: " +  str(message))
+    message = json.dumps(message)
+    SocketClient.sendMessage(message)
+
+ui.pushButton_Login.clicked.connect(login)
+
+#La cosa buona di collegare tutto in questo modo, è che puoi modificare il file Login.py tutte le volte che vuoi e nn devi
+#fare copia e incolla ogni volta che fai "python -m ...."
+
+#====================================================
 
 messages = [{"sender": "Christian",
              "time": "12:34",
