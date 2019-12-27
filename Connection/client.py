@@ -13,7 +13,6 @@ from events import Events
 
 from threading import Thread
 
-
 class Cryptographer(object):
     publickey = 0
 
@@ -120,7 +119,7 @@ class SocketClient(Thread):
         self.crypto = Cryptographer()
 
     def run(self):
-        while True:
+        while not self.stopFlag:
             try:
                 self.sock.connect(self.address)
             except:
@@ -178,21 +177,24 @@ class SocketClient(Thread):
 
                         self.events.onConnect()
 
-                        testJson = {"id": -1,
-                                    "message": "Ciao sono pollo e sono arrivato qui tramite AES."
-                                    }
-                        testJson = json.dumps(testJson)
+                        #testJson = {"id": -1,
+                        #            "message": "ciao"
+                        #            }
+                        #testJson = json.dumps(testJson)
 
-                        self.sendMessage(testJson)
+                        #self.sendMessage(testJson)
 
                     elif self.isCrypted_AES:
                         content = self.crypto.decrypt_AES(content)
-                        message = content.decode("utf-8")
+                        message = content.decode("utf-8",)
+                        j = json.loads(message)
+
                         self.events.onMessageReceived(message)
 
-            except:
-                print("An exception occurred: " + str(sys.stderr))
-                # self.close()
+            except ConnectionError:
+                print("An exception occurred while receiving: " + str(sys.stderr))
+                self.close()
+                return
 
             print("Closing the socket cause receive was 0.")
             self.close()
