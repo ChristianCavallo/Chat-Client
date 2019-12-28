@@ -103,7 +103,7 @@ class SocketClient(Thread):
         self.isCrypted_AES = False
         self.isCrypted_RSA = False
         self.stopFlag = False
-        
+
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.address = address
         self.events = Events(("onClosed", "onConnect", "onMessageReceived"))

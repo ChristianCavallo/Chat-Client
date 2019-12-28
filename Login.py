@@ -9,19 +9,17 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from Dashboard import Ui_Dialog_Dashboard
-from Registration import Ui_Dialog_Registration
 
-
-class Ui_MainWindow(object):
-    def setupUi(self, MainWindow):
-        self.main = MainWindow
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(800, 600)
-        self.centralwidget = QtWidgets.QWidget(MainWindow)
+class Ui_LoginForm(object):
+    def setupUi(self, LoginForm):
+        LoginForm.setObjectName("LoginForm")
+        LoginForm.resize(255, 200)
+        LoginForm.setMinimumSize(QtCore.QSize(255, 200))
+        LoginForm.setMaximumSize(QtCore.QSize(255, 200))
+        self.centralwidget = QtWidgets.QWidget(LoginForm)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
-        self.groupBox.setGeometry(QtCore.QRect(190, 170, 210, 161))
+        self.groupBox.setGeometry(QtCore.QRect(20, 20, 210, 161))
         self.groupBox.setObjectName("groupBox")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -45,76 +43,30 @@ class Ui_MainWindow(object):
         self.verticalLayout.addLayout(self.horizontalLayout_2)
         self.pushButton_Login = QtWidgets.QPushButton(self.groupBox)
         self.pushButton_Login.setObjectName("pushButton_Login")
-
         self.verticalLayout.addWidget(self.pushButton_Login)
         self.pushButton_createAccount = QtWidgets.QPushButton(self.groupBox)
         self.pushButton_createAccount.setObjectName("pushButton_createAccount")
         self.verticalLayout.addWidget(self.pushButton_createAccount)
-        MainWindow.setCentralWidget(self.centralwidget)
+        LoginForm.setCentralWidget(self.centralwidget)
 
-        self.retranslateUi(MainWindow)
-        QtCore.QMetaObject.connectSlotsByName(MainWindow)
+        self.retranslateUi(LoginForm)
+        QtCore.QMetaObject.connectSlotsByName(LoginForm)
 
-        #Collegamenti: Azioni con bottoni
-        #self.pushButton_Login.clicked.connect(self.openWindowDashboard)
-        self.pushButton_createAccount.clicked.connect(self.openWindowRegistration)
-
-    def retranslateUi(self, MainWindow):
+    def retranslateUi(self, LoginForm):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
-        self.groupBox.setTitle(_translate("MainWindow", "Singin"))
-        self.label.setText(_translate("MainWindow", "UserName"))
-        self.label_2.setText(_translate("MainWindow", "Password"))
-        self.pushButton_Login.setText(_translate("MainWindow", "Login"))
-        self.pushButton_createAccount.setText(_translate("MainWindow", "Create an account"))
+        LoginForm.setWindowTitle(_translate("LoginForm", "Login to the chat!"))
+        self.groupBox.setTitle(_translate("LoginForm", "Sign in"))
+        self.label.setText(_translate("LoginForm", "UserName"))
+        self.label_2.setText(_translate("LoginForm", "Password"))
+        self.pushButton_Login.setText(_translate("LoginForm", "Login"))
+        self.pushButton_createAccount.setText(_translate("LoginForm", "Create an account"))
 
-
-
-    def openWindowRegistration(self):
-        self.dialog = QtWidgets.QDialog()
-        self.dialog.ui = Ui_Dialog_Registration()
-        self.dialog.ui.setupUi(self.dialog)
-        self.dialog.setWindowModality(QtCore.Qt.WindowModal)
-
-        self.main.hide()
-        self.dialog.exec_()
-        self.main.show()
-        print("ciao")
-
-    def openWindowDashboard(self):
-        #lg.append(self.lineEdit_email.text())
-        #lg.append(self.lineEdit_password.text())
-        message = {"id": 21,
-                   "name": self.lineEdit_email.text(),
-                   "email": self.lineEdit_password.text()}  # ecc ecc
-        self.events.onLoginDone(message)
-
-        #Allora quello che vuoi fare tu... nn funziona
-        #la cosa che potresti fare è questa
-
-        self.Dialog = QtWidgets.QDialog()
-        self.ui2 = Ui_Dialog_Dashboard()
-        self.ui2.setupUi(self.Dialog)
-        self.Dialog.show()
-        self.main.close()
-        #cmq in ogni caso nn va bene... ste chiamate devono essere fatte dal main, altrimenti nn abbiamo controllo sui risultati...
-        #cioè non possiamo ascoltare un evento di un form a cui nn possiamo accedere dal main... nn so se mi stai capendo,, avevo intuito una cosa del genere
-        #cioè se self.ui2 la sto creando qua... dal main nn posso fare self.ui2.onLoginDone per esempio... capito?
-
-    def Avvio(self):
-        import sys
-        app = QtWidgets.QApplication(sys.argv)
-        MainWindow = QtWidgets.QMainWindow()
-        ui = Ui_MainWindow()
-        ui.setupUi(MainWindow)
-        MainWindow.show()
-        sys.exit(app.exec_())
 
 if __name__ == "__main__":
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    LoginForm = QtWidgets.QMainWindow()
+    ui = Ui_LoginForm()
+    ui.setupUi(LoginForm)
+    LoginForm.show()
     sys.exit(app.exec_())

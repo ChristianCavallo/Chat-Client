@@ -9,8 +9,22 @@ from events import Events
 import json
 import base64
 
+from Login import Ui_LoginForm
+from Registration import Ui_Dialog_Registration
 from Utils import Cacher
 
+
+
+
+app = QtWidgets.QApplication(sys.argv)
+LoginForm = QtWidgets.QMainWindow()
+ui_Login = Ui_LoginForm()
+ui_Login.setupUi(LoginForm)
+LoginForm.show()
+
+ChatForm = QtWidgets.QWidget()
+ui_chat = Ui_Form()
+ui_chat.setupUi(ChatForm)
 
 def onConnect():
     print("Connected")
@@ -27,20 +41,24 @@ def onMessageReceived(message):
     if id == -1: #Il command test ha id = -1
         print("Received a test: " + j["message"])
 
+    if id == 11: #Response di registrazione
+        pass
+
     if id == 21: # Una response di login
         #Qua riceviamo la risposta giusto?si, si chiama response
         print("Received message" + str(j))
-        id = j["user-id"] #lo avevamo chiamato cosi l'id giusto?sisi.. poteva essere null oppure qualcosa.. giusto?
+        ui_chat.user_id = j["user-id"] #lo avevamo chiamato cosi l'id giusto?sisi.. poteva essere null oppure qualcosa.. giusto?
 
         #semplice no? no....per me sembra visto semplice fatto da te xD
-        if id is None:
+        if ui_chat.user_id is None:
             print("Wrong login!")
 
         else:
-            name = j["name"]
-            surname = j["surname"]
+            ui_chat.name = j["name"]
+            ui_chat.surname = j["surname"]
 
-            print("Login success! " + id + "  " + name + " " + surname)
+            print("Login success! " + ui_chat.user_id + "  " + ui_chat.name + " " + ui_chat.surname)
+            LoginForm.close()
 
 
 
@@ -64,8 +82,8 @@ def onMessageReceived(message):
             print("Invalid media id")
             return
 
-        for index in range(0, ui.messagesList.count()):
-            i = ui.messagesList.itemWidget(ui.messagesList.item(index))
+        for index in range(0, ui_chat.messagesList.count()):
+            i = ui_chat.messagesList.itemWidget(ui_chat.messagesList.item(index))
 
             if i.media_id == j["media-id"]:
                 i.setMedia(j["media"])
@@ -86,18 +104,63 @@ def onMessageReceived(message):
     if id == 91: #Fetch chat response
         pass
 
+
+
 events = Events()
 SocketClient = client.SocketClient(('localhost', 15000))
 SocketClient.events.onConnect += onConnect
 SocketClient.events.onClosed += onClosed
 SocketClient.events.onMessageReceived += onMessageReceived
 
-app = QtWidgets.QApplication(sys.argv)
-Form = QtWidgets.QWidget()
-ui = Ui_Form()
-ui.setupUi(Form)
-Form.show()
 
+#=============== LOGIN SIGNALS ======================
+
+
+
+def login():
+    message = {"id": 20,
+               "email": ui_Login.lineEdit_email.text(),
+               "password": ui_Login.lineEdit_password.text()
+               }
+    print("Sending a login request with data: " +  str(message))
+    message = json.dumps(message)
+    SocketClient.sendMessage(message)
+
+def openWindowRegistration():
+    LoginForm.hide()
+
+    ui_Login.Dialog_Registration = QtWidgets.QDialog()
+    ui_Login.ui_registration = Ui_Dialog_Registration()
+    ui_Login.ui_registration.setupUi(ui_Login.Dialog_Registration)
+
+    ui_Login.ui_registration.Signup_toolButton.clicked.connect(register)
+
+    ui_Login.Dialog_Registration.exec_()
+    LoginForm.show()
+
+def register():
+    req = { "id" : 10,
+            "name" : ui_Login.ui_registration.lineEdit_name.text().strip(),
+            "surname" :  ui_Login.ui_registration.lineEdit_surname.text().strip(),
+            "email" :  ui_Login.ui_registration.lineEdit_email.text().strip(),
+            "password" :  ui_Login.ui_registration.lineEdit_password.text().strip()
+            }
+
+    req = json.dumps(req)
+    SocketClient.sendMessage(req)
+
+ui_Login.pushButton_Login.clicked.connect(login)
+ui_Login.pushButton_createAccount.clicked.connect(openWindowRegistration)
+
+#====================================================
+
+code = app.exec_()
+print("Login form closed with code " + str(code))
+
+
+#app = QtWidgets.QApplication(sys.argv)
+
+ChatForm.show()
 
 # ==================== WIDGETS =================================
 class ChatWidget(QtWidgets.QWidget):
@@ -316,7 +379,7 @@ class MessageWidget(QtWidgets.QWidget):
 # ========================CHATUI SIGNALS=====================================
 
 def clearMessages():
-    ui.messagesList.clear()
+    ui_chat.messagesList.clear()
 
 
 def addMessage(message, showSender=True):
@@ -335,17 +398,17 @@ def addMessage(message, showSender=True):
     widget.setMessageStyle(myUser != message["sender"])  # True se ho ricevuto, False se l'ho inviato io
 
     # Create QListWidgetItem
-    widgetItem = QtWidgets.QListWidgetItem(ui.messagesList)
+    widgetItem = QtWidgets.QListWidgetItem(ui_chat.messagesList)
     # Set size hint
     widgetItem.setSizeHint(widget.sizeHint())
     # Add QListWidgetItem into QListWidget
-    ui.messagesList.addItem(widgetItem)
-    ui.messagesList.setItemWidget(widgetItem, widget)
-    ui.messagesList.scrollToBottom()
+    ui_chat.messagesList.addItem(widgetItem)
+    ui_chat.messagesList.setItemWidget(widgetItem, widget)
+    ui_chat.messagesList.scrollToBottom()
 
 
 def clearContacts():
-    ui.chatList.clear()
+    ui_chat.chatList.clear()
 
 
 def addContact(chat):
@@ -355,23 +418,23 @@ def addContact(chat):
     if not chat.get("Notifies") is None:
         contact.addNotifies(chat.get("Notifies"))
 
-    widgetItem = QtWidgets.QListWidgetItem(ui.chatList)
+    widgetItem = QtWidgets.QListWidgetItem(ui_chat.chatList)
     contact.id = chat.get("contact-id")
     contact.isGroup = chat.get("isGroup")
 
     widgetItem.setSizeHint(contact.sizeHint())
-    ui.chatList.addItem(widgetItem)
-    ui.chatList.setItemWidget(widgetItem, contact)
+    ui_chat.chatList.addItem(widgetItem)
+    ui_chat.chatList.setItemWidget(widgetItem, contact)
 
 
 def sendMessage(self):
-    text = ui.messageText.text().strip()
+    text = ui_chat.messageText.text().strip()
 
     m = {
         "id": "40",
-        "chat-id": ui.selectedChat.id,
+        "chat-id": ui_chat.selectedChat.id,
         "text": text,
-        "media": ui.media
+        "media": ui_chat.media
     }
 
     m = json.dumps(m)
@@ -380,7 +443,7 @@ def sendMessage(self):
     SocketClient.sendMessage(m)
     #print(m)
 
-    if ui.media is not None:
+    if ui_chat.media is not None:
         removeMediaToolButton_clicked()
 
 
@@ -401,15 +464,15 @@ def showFileDialog():
         with f:
             data = f.read()
             m = base64.b64encode(data)
-            ui.media = str(m, "utf-8")
+            ui_chat.media = str(m, "utf-8")
 
             print("Media selected: " + str(size) + " bytes")
-            ui.removeMediaToolButton.setEnabled(True)
+            ui_chat.removeMediaToolButton.setEnabled(True)
 
 
 def removeMediaToolButton_clicked():
-    ui.removeMediaToolButton.setEnabled(False)
-    ui.media = None
+    ui_chat.removeMediaToolButton.setEnabled(False)
+    ui_chat.media = None
     print("Media cleaned!")
 
 
@@ -424,21 +487,21 @@ def showdialog(text):
 
 
 def addGroupToolButton_Clicked():
-    ui.addGroupToolButton.setEnabled(False)
-    ui.confirmGroupToolButton.show()
-    ui.cancelGroupToolButton.show()
-    ui.chatList.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
-    ui.isSelectingGroup = True
+    ui_chat.addGroupToolButton.setEnabled(False)
+    ui_chat.confirmGroupToolButton.show()
+    ui_chat.cancelGroupToolButton.show()
+    ui_chat.chatList.setSelectionMode(QtWidgets.QAbstractItemView.MultiSelection)
+    ui_chat.isSelectingGroup = True
 
 
 def confirmGroupToolButton_Clicked():
-    if len(ui.chatList.selectedItems()) > 1:
+    if len(ui_chat.chatList.selectedItems()) > 1:
 
-        items = ui.chatList.selectedItems()
+        items = ui_chat.chatList.selectedItems()
 
         ids = []
         for item in items:
-            i = ui.chatList.itemWidget(item)
+            i = ui_chat.chatList.itemWidget(item)
             if i.isGroup:
                 showdialog("You can't add a group in a group!")
                 item.setSelected(False)
@@ -455,13 +518,13 @@ def confirmGroupToolButton_Clicked():
 
         SocketClient.sendMessage(j)
 
-        ui.confirmGroupToolButton.hide()
-        ui.cancelGroupToolButton.hide()
-        ui.addGroupToolButton.setEnabled(True)
-        ui.chatList.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
-        ui.chatList.clearSelection()
+        ui_chat.confirmGroupToolButton.hide()
+        ui_chat.cancelGroupToolButton.hide()
+        ui_chat.addGroupToolButton.setEnabled(True)
+        ui_chat.chatList.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        ui_chat.chatList.clearSelection()
 
-        ui.isSelectingGroup = False
+        ui_chat.isSelectingGroup = False
 
     else:
         print("Select at least 2 contacts.")
@@ -469,35 +532,35 @@ def confirmGroupToolButton_Clicked():
 
 
 def cancelGroupButton_clicked():
-    ui.confirmGroupToolButton.hide()
-    ui.cancelGroupToolButton.hide()
-    ui.addGroupToolButton.setEnabled(True)
-    ui.chatList.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
-    ui.chatList.clearSelection()
-    ui.isSelectingGroup = False
+    ui_chat.confirmGroupToolButton.hide()
+    ui_chat.cancelGroupToolButton.hide()
+    ui_chat.addGroupToolButton.setEnabled(True)
+    ui_chat.chatList.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+    ui_chat.chatList.clearSelection()
+    ui_chat.isSelectingGroup = False
 
 
 def logoutButton_clicked():
-    Form.close()
+    ChatForm.close()
     SocketClient.close()
 
 
 def chatList_CurrentItemChanged(new, previous):
-    if not ui.isSelectingGroup:
-        con = ui.chatList.itemWidget(ui.chatList.item(ui.chatList.currentRow()))
-        ui.selectedChat = con
-        print("Selected chat: " + ui.selectedChat.id + "  isGroup: " + str(ui.selectedChat.isGroup))
+    if not ui_chat.isSelectingGroup:
+        con = ui_chat.chatList.itemWidget(ui_chat.chatList.item(ui_chat.chatList.currentRow()))
+        ui_chat.selectedChat = con
+        print("Selected chat: " + ui_chat.selectedChat.id + "  isGroup: " + str(ui_chat.selectedChat.isGroup))
         m = {"id" : 90,
-             "chat-id" : ui.selectedChat.id
+             "chat-id" : ui_chat.selectedChat.id
         }
         m = json.dumps(m)
         SocketClient.sendMessage(m)
-        print("Fetching chat: " + str(ui.selectedChat.id))
+        print("Fetching chat: " + str(ui_chat.selectedChat.id))
         # TODO: SEND A REQUEST TO THE SERVER TO FETCH MESSAGGES, LOAD THE CHAT AND CHECK IF SENDER IS ONLINE.
 
 
 def addContactButton_clicked():
-    email = ui.searchContactLabel.text().strip()
+    email = ui_chat.searchContactLabel.text().strip()
     from email.utils import parseaddr
     email = parseaddr(email)
 
@@ -516,60 +579,48 @@ def addContactButton_clicked():
 
 
 def removeChatButton_clicked():
-    if ui.selectedChat is not None:
+    if ui_chat.selectedChat is not None:
         r = {
             "id": "70",
-            "chat-id": ui.selectedChat.id,
-            "isGroup": ui.selectedChat.isGroup
+            "chat-id": ui_chat.selectedChat.id,
+            "isGroup": ui_chat.selectedChat.isGroup
         }
 
         r = json.dumps(r)
         SocketClient.sendMessage(r)
 
 
-ui.chatList.currentItemChanged.connect(chatList_CurrentItemChanged)
-ui.selectedChat = None
+ui_chat.chatList.currentItemChanged.connect(chatList_CurrentItemChanged)
+ui_chat.selectedChat = None
 
-ui.confirmGroupToolButton.hide()
-ui.cancelGroupToolButton.hide()
+ui_chat.confirmGroupToolButton.hide()
+ui_chat.cancelGroupToolButton.hide()
 
-ui.addGroupToolButton.clicked.connect(addGroupToolButton_Clicked)
-ui.confirmGroupToolButton.clicked.connect(confirmGroupToolButton_Clicked)
-ui.cancelGroupToolButton.clicked.connect(cancelGroupButton_clicked)
-ui.isSelectingGroup = False
+ui_chat.addGroupToolButton.clicked.connect(addGroupToolButton_Clicked)
+ui_chat.confirmGroupToolButton.clicked.connect(confirmGroupToolButton_Clicked)
+ui_chat.cancelGroupToolButton.clicked.connect(cancelGroupButton_clicked)
+ui_chat.isSelectingGroup = False
 
-ui.removeMediaToolButton.clicked.connect(removeChatButton_clicked)
+ui_chat.removeMediaToolButton.clicked.connect(removeChatButton_clicked)
 
-ui.mediaToolButton.clicked.connect(showFileDialog)
-ui.removeMediaToolButton.clicked.connect(removeMediaToolButton_clicked)
-ui.media = None
+ui_chat.mediaToolButton.clicked.connect(showFileDialog)
+ui_chat.removeMediaToolButton.clicked.connect(removeMediaToolButton_clicked)
+ui_chat.media = None
 
-ui.sendToolButton.clicked.connect(sendMessage)
+ui_chat.sendToolButton.clicked.connect(sendMessage)
 
-ui.addContactToolButton.clicked.connect(addContactButton_clicked)
+ui_chat.addContactToolButton.clicked.connect(addContactButton_clicked)
 
-ui.logoutToolButton.clicked.connect(logoutButton_clicked)
+ui_chat.logoutToolButton.clicked.connect(logoutButton_clicked)
+ui_chat.name = "Noemi"
+ui_chat.surname = "Buggfix"
+if ui_chat.name is not None:
+   ui_chat.userLabel.setText(ui_chat.name + " " + ui_chat.surname)
 
 # ===========================================================================
 
 
-#=============== LOGIN SIGNALS ======================
 
-def login():
-    message = {"id": 20,
-               "email": ui.lineEdit_email.text(),
-               "password": ui.lineEdit_password.text()
-               }
-    print("Sending a login request with data: " +  str(message))
-    message = json.dumps(message)
-    SocketClient.sendMessage(message)
-
-#ui.pushButton_Login.clicked.connect(login)
-
-#La cosa buona di collegare tutto in questo modo, è che puoi modificare il file Login.py tutte le volte che vuoi e nn devi
-#fare copia e incolla ogni volta che fai "python -m ...."
-
-#====================================================
 
 messages = [{"sender": "Christian",
              "time": "12:34",
