@@ -564,7 +564,7 @@ def login():
     message = json.dumps(message)
     SocketClient.sendMessage(message)
 
-ui.pushButton_Login.clicked.connect(login)
+#ui.pushButton_Login.clicked.connect(login)
 
 #La cosa buona di collegare tutto in questo modo, è che puoi modificare il file Login.py tutte le volte che vuoi e nn devi
 #fare copia e incolla ogni volta che fai "python -m ...."

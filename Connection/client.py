@@ -103,6 +103,7 @@ class SocketClient(Thread):
         self.isCrypted_AES = False
         self.isCrypted_RSA = False
         self.stopFlag = False
+        
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.address = address
         self.events = Events(("onClosed", "onConnect", "onMessageReceived"))
@@ -124,7 +125,7 @@ class SocketClient(Thread):
                 self.sock.connect(self.address)
             except:
                 print("Can't reach the server.")
-                self.close()
+                #self.close()
                 continue
 
             try:
@@ -231,4 +232,3 @@ class SocketClient(Thread):
         # self.sock.shutdown(socket.SHUT_RDWR)
         self.sock.close()
         self.events.onClosed()
-        self.reset()
