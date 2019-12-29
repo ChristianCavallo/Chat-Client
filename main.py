@@ -8,6 +8,7 @@ from Connection import client
 from events import Events
 import json
 import base64
+import hashlib
 
 from Login import Ui_LoginForm
 from Registration import Ui_Dialog_Registration
@@ -15,6 +16,14 @@ from Utils import Cacher
 
 
 
+def showdialog(text):
+    msg = QtWidgets.QMessageBox()
+    msg.setIcon(QtWidgets.QMessageBox.Warning)
+
+    msg.setText(text)
+    msg.setWindowTitle("Chat Alert")
+    msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+    msg.exec_()
 
 app = QtWidgets.QApplication(sys.argv)
 LoginForm = QtWidgets.QMainWindow()
@@ -42,14 +51,18 @@ def onMessageReceived(message):
         print("Received a test: " + j["message"])
 
     if id == 11: #Response di registrazione
-        pass
+        result= j["res"]
+        print("Registration result: " + result)
+        if result == "ok":
+            ui_Login.Dialog_Registration.close()
+        else:
+            showdialog(result)
 
     if id == 21: # Una response di login
         #Qua riceviamo la risposta giusto?si, si chiama response
         print("Received message" + str(j))
-        ui_chat.user_id = j["user-id"] #lo avevamo chiamato cosi l'id giusto?sisi.. poteva essere null oppure qualcosa.. giusto?
+        ui_chat.user_id = j["user-id"] #id poteva essere null oppure qualcosa.. giusto?
 
-        #semplice no? no....per me sembra visto semplice fatto da te xD
         if ui_chat.user_id is None:
             print("Wrong login!")
 
@@ -118,9 +131,10 @@ SocketClient.events.onMessageReceived += onMessageReceived
 
 
 def login():
+    password = ui_Login.lineEdit_password.text().strip()
     message = {"id": 20,
-               "email": ui_Login.lineEdit_email.text(),
-               "password": ui_Login.lineEdit_password.text()
+               "email": ui_Login.lineEdit_email.text().strip(),
+               "password": hashlib.md5(password.encode()).hexdigest()
                }
     print("Sending a login request with data: " +  str(message))
     message = json.dumps(message)
@@ -139,11 +153,13 @@ def openWindowRegistration():
     LoginForm.show()
 
 def register():
+    password = ui_Login.ui_registration.lineEdit_password.text().strip()
+
     req = { "id" : 10,
             "name" : ui_Login.ui_registration.lineEdit_name.text().strip(),
             "surname" :  ui_Login.ui_registration.lineEdit_surname.text().strip(),
             "email" :  ui_Login.ui_registration.lineEdit_email.text().strip(),
-            "password" :  ui_Login.ui_registration.lineEdit_password.text().strip()
+            "password" :  hashlib.md5(password.encode()).hexdigest()
             }
 
     req = json.dumps(req)
@@ -476,14 +492,6 @@ def removeMediaToolButton_clicked():
     print("Media cleaned!")
 
 
-def showdialog(text):
-    msg = QtWidgets.QMessageBox()
-    msg.setIcon(QtWidgets.QMessageBox.Warning)
-
-    msg.setText(text)
-    msg.setWindowTitle("Chat Alert")
-    msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-    msg.exec_()
 
 
 def addGroupToolButton_Clicked():
@@ -612,8 +620,7 @@ ui_chat.sendToolButton.clicked.connect(sendMessage)
 ui_chat.addContactToolButton.clicked.connect(addContactButton_clicked)
 
 ui_chat.logoutToolButton.clicked.connect(logoutButton_clicked)
-ui_chat.name = "Noemi"
-ui_chat.surname = "Buggfix"
+
 if ui_chat.name is not None:
    ui_chat.userLabel.setText(ui_chat.name + " " + ui_chat.surname)
 
