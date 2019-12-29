@@ -216,9 +216,9 @@ class SocketClient(Thread):
             self.sock.sendall(part1 + part2 + content + part4)
 
             # print("Message sent to the server: " + message)
-        except ConnectionRefusedError:
+        except:
             print("An exception occurred: " + str(sys.stderr))
-            self.close()
+            #self.close()
 
     def sendKey(self):
         keyJson = {"id": 0,

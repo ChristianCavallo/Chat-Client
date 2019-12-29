@@ -427,6 +427,8 @@ def addContact(chat):
     ui_chat.chatList.setItemWidget(widgetItem, contact)
 
 
+
+
 def sendMessage(self):
     text = ui_chat.messageText.text().strip()
 
@@ -617,6 +619,8 @@ ui_chat.surname = "Buggfix"
 if ui_chat.name is not None:
    ui_chat.userLabel.setText(ui_chat.name + " " + ui_chat.surname)
 
+ui_chat.loadedContacts = []
+
 # ===========================================================================
 
 
@@ -657,6 +661,7 @@ contacts = [
 ]
 for contact in contacts:
     addContact(contact)
+    ui_chat.loadedContacts.append(contact)
 
 code = app.exec_()
 SocketClient.close()
