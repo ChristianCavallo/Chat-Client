@@ -9,9 +9,11 @@ from Crypto.Cipher import PKCS1_OAEP
 import rsa as rsa_
 import base64
 from Crypto.Util.Padding import pad
-from events import Events
 
 from threading import Thread
+
+from PyQt5 import QtCore
+
 
 class Cryptographer(object):
     publickey = 0
@@ -98,7 +100,12 @@ class Cryptographer(object):
         return original
 
 
-class SocketClient(Thread):
+
+class SocketClient(QtCore.QThread):
+    onReceiveCallback = QtCore.pyqtSignal(object);
+    onConnectCallback = None;
+    onConnectionClosedCallback = None;
+
     def __init__(self, address):
         self.isCrypted_AES = False
         self.isCrypted_RSA = False
@@ -106,11 +113,20 @@ class SocketClient(Thread):
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.address = address
-        self.events = Events(("onClosed", "onConnect", "onMessageReceived"))
+        #self.events = Events(("onClosed", "onConnect", "onMessageReceived"))
 
         self.crypto = Cryptographer()
-        Thread.__init__(self)
+        QtCore.QThread.__init__(self)
         self.start()
+
+    def registerOnReceiveCallback(self, callback):
+        self.onReceiveCallback = callback
+
+    def registerOnConnectCallback(self, callback):
+        self.onConnectCallback = callback
+
+    def registerOnConnectionClosedCallback(self, callback):
+        self.onConnectionClosedCallback = callback
 
     def reset(self):
         self.isCrypted_AES = False
@@ -176,8 +192,8 @@ class SocketClient(Thread):
                         self.isCrypted_RSA = True
                         self.isCrypted_AES = True
 
-                        self.events.onConnect()
-
+                        #self.events.onConnect()
+                        self.onConnectCallback()
                         #testJson = {"id": -1,
                         #            "message": "ciao"
                         #            }
@@ -190,7 +206,9 @@ class SocketClient(Thread):
                         message = content.decode("utf-8",)
                         j = json.loads(message)
 
-                        self.events.onMessageReceived(message)
+                        #self.events.onMessageReceived(message)
+                        self.onReceiveCallback.emit(message)
+                        #self.onReceiveCallback(message)
 
             except ConnectionError:
                 print("An exception occurred while receiving: " + str(sys.stderr))
@@ -231,4 +249,5 @@ class SocketClient(Thread):
         self.stopFlag = True
         # self.sock.shutdown(socket.SHUT_RDWR)
         self.sock.close()
-        self.events.onClosed()
+        self.onConnectionClosedCallback()
+        #self.events.onClosed()

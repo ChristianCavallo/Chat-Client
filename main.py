@@ -16,14 +16,6 @@ from Utils import Cacher
 
 
 
-def showdialog(text):
-    msg = QtWidgets.QMessageBox()
-    msg.setIcon(QtWidgets.QMessageBox.Warning)
-
-    msg.setText(text)
-    msg.setWindowTitle("Chat Alert")
-    msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-    msg.exec_()
 
 app = QtWidgets.QApplication(sys.argv)
 LoginForm = QtWidgets.QMainWindow()
@@ -31,9 +23,26 @@ ui_Login = Ui_LoginForm()
 ui_Login.setupUi(LoginForm)
 LoginForm.show()
 
+
 ChatForm = QtWidgets.QWidget()
 ui_chat = Ui_Form()
 ui_chat.setupUi(ChatForm)
+ui_chat.user_id  = None
+
+
+def showdialog(text):
+    msg = QtWidgets.QMessageBox()
+    msg.setIcon(QtWidgets.QMessageBox.Warning)
+
+    msg.setText(text)
+    msg.setWindowTitle("Chat Alert")
+    msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+    app.processEvents()
+    msg.exec_()
+
+    print("Done")
+
+
 
 def onConnect():
     print("Connected")
@@ -120,11 +129,14 @@ def onMessageReceived(message):
     # TODO: Se la chat che sto fetchando non è un gruppo, mi aspetto che nella risposta ci sia anche l'ultimo accesso dell'interlocutore.
 
 
-events = Events()
 SocketClient = client.SocketClient(('localhost', 15000))
-SocketClient.events.onConnect += onConnect
-SocketClient.events.onClosed += onClosed
-SocketClient.events.onMessageReceived += onMessageReceived
+
+#SocketClient.registerOnReceiveCallback(onMessageReceived)
+SocketClient.onReceiveCallback.connect(onMessageReceived)
+SocketClient.registerOnConnectCallback(onConnect)
+SocketClient.registerOnConnectionClosedCallback(onClosed)
+
+
 
 
 #=============== LOGIN SIGNALS ======================
@@ -172,10 +184,17 @@ ui_Login.pushButton_createAccount.clicked.connect(openWindowRegistration)
 code = app.exec_()
 print("Login form closed with code " + str(code))
 
+if ui_chat.user_id is None:
+    SocketClient.close()
+    sys.exit(0)
 
 #app = QtWidgets.QApplication(sys.argv)
 
 ChatForm.show()
+
+
+
+
 
 # ==================== WIDGETS =================================
 class ChatWidget(QtWidgets.QWidget):
@@ -715,6 +734,7 @@ messages = [{"sender": "Christian",
                 "content": "Ciao chry, tutto bene tu?"
             },
             {
+                "id-sender" : "aisjfsjafso",
                 "sender": "Christian",
                 "time": "12:40",
                 "content": "Bene bene, tua madre è polla!",
