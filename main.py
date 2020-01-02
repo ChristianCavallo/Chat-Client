@@ -113,7 +113,7 @@ def onMessageReceived(message):
             showdialog("Error while deleting the selected chat!")
 
     if id == 81: #Fetch contacts response
-        pass
+        initContactsView(j["chats"])
 
     if id == 91: #Fetch chat response
         initChatView(j)
@@ -428,15 +428,16 @@ def clearContacts():
 
 
 def addContact(chat):
-    contact = ChatWidget(chat.get("isgroup"))
+    contact = ChatWidget(chat.get("isGroup"))
     contact.label.setText(chat.get("name"))
 
     if not chat.get("notifies") is None:
         contact.addNotifies(chat.get("notifies"))
 
     widgetItem = QtWidgets.QListWidgetItem(ui_chat.chatList)
-    contact.id = chat.get("id")
-    contact.isGroup = chat.get("isgroup")
+    contact.id = chat.get("chat-id")
+    contact.user_id = chat.get("contact-id")
+    contact.isGroup = chat.get("isGroup")
 
     widgetItem.setSizeHint(contact.sizeHint())
     ui_chat.chatList.addItem(widgetItem)
@@ -607,7 +608,7 @@ def initChatView(j):
     if status == "online":
         icon.addPixmap(QtGui.QPixmap("Resources/green_dot.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
     else:
-        icon.addPixmap(QtGui.QPixmap("Resources/green_dot.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("Resources/red_dot.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
 
     ui_chat.statusToolButton.setIcon(icon)
     ui_chat.statusToolButton.show()
@@ -629,6 +630,15 @@ def initChatView(j):
     for message in j["messages"]:
 
         addMessage(message, isGroup)
+
+
+def initContactsView(j):
+    ui_chat.loadedContacts.clear()
+    ui_chat.chatList.clear()
+
+    for chat in j:
+        addContact(chat)
+        ui_chat.loadedContacts.append(chat)
 
 
 
@@ -663,7 +673,7 @@ ui_chat.loadedContacts = []
 
 def fetchContacts():
     r = {
-        "id": "80"
+        "id": 80
     }
 
     r = json.dumps(r)
@@ -673,7 +683,7 @@ def fetchContacts():
 def removeSelectedChat():
     if ui_chat.selectedChat is not None:
         r = {
-            "id": "70",
+            "id": 70,
             "chat-id": ui_chat.selectedChat.id,
             "isGroup": ui_chat.selectedChat.isGroup
         }
@@ -693,7 +703,7 @@ def fetchSelectedChat():
     print("Fetching chat: " + str(ui_chat.selectedChat.id))
 
 
-fetchContacts()
+
 
 messages = [{"sender": "Christian",
              "time": "12:34",
@@ -732,8 +742,11 @@ contacts = [
 
 
 for contact in contacts:
-    addContact(contact)
+    #addContact(contact)
     ui_chat.loadedContacts.append(contact)
+
+
+fetchContacts()
 
 code = app.exec_()
 SocketClient.close()
