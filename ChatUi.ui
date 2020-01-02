@@ -29,61 +29,6 @@
    <string notr="true">background-color: rgb(237, 237, 237);
 background-color: rgb(229, 221, 213);</string>
   </property>
-  <widget class="QToolButton" name="mediaToolButton">
-   <property name="geometry">
-    <rect>
-     <x>270</x>
-     <y>472</y>
-     <width>40</width>
-     <height>41</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>Resources/OpenCamera1.png</normaloff>Resources/OpenCamera1.png</iconset>
-   </property>
-   <property name="iconSize">
-    <size>
-     <width>50</width>
-     <height>50</height>
-    </size>
-   </property>
-   <property name="autoRaise">
-    <bool>false</bool>
-   </property>
-  </widget>
-  <widget class="QToolButton" name="sendToolButton">
-   <property name="geometry">
-    <rect>
-     <x>805</x>
-     <y>480</y>
-     <width>41</width>
-     <height>26</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>Resources/send3.png</normaloff>Resources/send3.png</iconset>
-   </property>
-   <property name="iconSize">
-    <size>
-     <width>50</width>
-     <height>50</height>
-    </size>
-   </property>
-  </widget>
   <widget class="QListWidget" name="messagesList">
    <property name="geometry">
     <rect>
@@ -104,29 +49,7 @@ background-color: rgb(229, 221, 213);</string>
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QLineEdit" name="messageText">
-   <property name="geometry">
-    <rect>
-     <x>315</x>
-     <y>477</y>
-     <width>531</width>
-     <height>31</height>
-    </rect>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">border-radius: 15px;
-padding-left: 10px;
-padding-right: 40px;
-background-color: rgb(255, 255, 255);</string>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="placeholderText">
-    <string>Write a message...</string>
-   </property>
-  </widget>
-  <widget class="QFrame" name="frame">
+  <widget class="QFrame" name="headerChatFrame">
    <property name="geometry">
     <rect>
      <x>265</x>
@@ -489,7 +412,7 @@ background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="geometry">
      <rect>
-      <x>210</x>
+      <x>170</x>
       <y>460</y>
       <width>51</width>
       <height>61</height>
@@ -515,7 +438,7 @@ background-color: rgb(255, 255, 255);</string>
    <widget class="QToolButton" name="cancelGroupToolButton">
     <property name="geometry">
      <rect>
-      <x>10</x>
+      <x>220</x>
       <y>460</y>
       <width>41</width>
       <height>61</height>
@@ -538,37 +461,155 @@ background-color: rgb(255, 255, 255);</string>
      </size>
     </property>
    </widget>
+   <widget class="QLineEdit" name="groupNameText">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>475</y>
+      <width>161</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border-radius: 15px;
+padding-left: 10px;
+padding-right: 40px;
+background-color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="placeholderText">
+     <string>Group's name...</string>
+    </property>
+   </widget>
   </widget>
-  <widget class="QToolButton" name="removeMediaToolButton">
+  <widget class="QFrame" name="sendBarFrame">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
    <property name="geometry">
     <rect>
-     <x>298</x>
-     <y>500</y>
-     <width>25</width>
-     <height>19</height>
+     <x>270</x>
+     <y>470</y>
+     <width>581</width>
+     <height>51</height>
     </rect>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+    <string notr="true"/>
    </property>
-   <property name="text">
-    <string>...</string>
+   <property name="frameShape">
+    <enum>QFrame::StyledPanel</enum>
    </property>
-   <property name="icon">
-    <iconset>
-     <normaloff>Resources/cancel_red.png</normaloff>Resources/cancel_red.png</iconset>
+   <property name="frameShadow">
+    <enum>QFrame::Raised</enum>
    </property>
+   <widget class="QToolButton" name="removeMediaToolButton">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>30</y>
+      <width>25</width>
+      <height>19</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+    </property>
+    <property name="text">
+     <string>...</string>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>Resources/cancel_red.png</normaloff>Resources/cancel_red.png</iconset>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="sendToolButton">
+    <property name="geometry">
+     <rect>
+      <x>537</x>
+      <y>10</y>
+      <width>41</width>
+      <height>26</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>Resources/send3.png</normaloff>Resources/send3.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>50</width>
+      <height>50</height>
+     </size>
+    </property>
+   </widget>
+   <widget class="QToolButton" name="mediaToolButton">
+    <property name="geometry">
+     <rect>
+      <x>2</x>
+      <y>2</y>
+      <width>40</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="icon">
+     <iconset>
+      <normaloff>Resources/OpenCamera1.png</normaloff>Resources/OpenCamera1.png</iconset>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>50</width>
+      <height>50</height>
+     </size>
+    </property>
+    <property name="autoRaise">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QLineEdit" name="messageText">
+    <property name="geometry">
+     <rect>
+      <x>47</x>
+      <y>7</y>
+      <width>531</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border-radius: 15px;
+padding-left: 10px;
+padding-right: 40px;
+background-color: rgb(255, 255, 255);</string>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="placeholderText">
+     <string>Write a message...</string>
+    </property>
+   </widget>
+   <zorder>removeMediaToolButton</zorder>
+   <zorder>mediaToolButton</zorder>
+   <zorder>messageText</zorder>
+   <zorder>sendToolButton</zorder>
   </widget>
-  <zorder>messagesList</zorder>
-  <zorder>messageText</zorder>
-  <zorder>mediaToolButton</zorder>
-  <zorder>sendToolButton</zorder>
-  <zorder>frame</zorder>
-  <zorder>frame_2</zorder>
-  <zorder>removeMediaToolButton</zorder>
  </widget>
  <resources/>
  <connections/>

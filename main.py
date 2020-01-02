@@ -65,11 +65,13 @@ def onMessageReceived(message):
 
         if ui_chat.user_id is None:
             print("Wrong login!")
+            showdialog("Wrong login!")
 
         else:
             ui_chat.name = j["name"]
             ui_chat.surname = j["surname"]
-
+            
+            ui_chat.userLabel.setText(ui_chat.name + " " + ui_chat.surname)
             print("Login success! " + ui_chat.user_id + "  " + ui_chat.name + " " + ui_chat.surname)
             LoginForm.close()
 
@@ -106,17 +108,16 @@ def onMessageReceived(message):
     if id == 71: # Una delete chat response
         result = j["result"]
         if result is True:
-            pass
+            fetchContacts()
         else:
-            pass
-        pass
+            showdialog("Error while deleting the selected chat!")
 
     if id == 81: #Fetch contacts response
         pass
 
     if id == 91: #Fetch chat response
-        pass
-
+        initChatView(j)
+    # TODO: Se la chat che sto fetchando non è un gruppo, mi aspetto che nella risposta ci sia anche l'ultimo accesso dell'interlocutore.
 
 
 events = Events()
@@ -127,8 +128,6 @@ SocketClient.events.onMessageReceived += onMessageReceived
 
 
 #=============== LOGIN SIGNALS ======================
-
-
 
 def login():
     password = ui_Login.lineEdit_password.text().strip()
@@ -399,7 +398,8 @@ def clearMessages():
 
 
 def addMessage(message, showSender=True):
-    myUser = "Christian"  # Cambiare con l'id utente e fare il confronto tra id per capire a chi appartiene sto messaggio
+
+    myUser = ui_chat.user_id
     if message.get("media") is None:
         widget = MessageWidget()
     else:
@@ -407,7 +407,7 @@ def addMessage(message, showSender=True):
 
     widget.textMessage.setText(message["content"])  # Imposta il contenuto del messaggio
     widget.setTime(
-        message["time"])  # Imposta il tempo del messaggio... potrebbe richiedere una formattazione del tipo hh:mm
+        message["time"])  # TODO: Imposta il tempo del messaggio... potrebbe richiedere una formattazione del tipo hh:mm
     if showSender:
         widget.setMessageName(message["sender"])  # Nome di colui che invia... solo se è un gruppo.
 
@@ -428,15 +428,15 @@ def clearContacts():
 
 
 def addContact(chat):
-    contact = ChatWidget(chat.get("isGroup"))
+    contact = ChatWidget(chat.get("isgroup"))
     contact.label.setText(chat.get("name"))
 
-    if not chat.get("Notifies") is None:
-        contact.addNotifies(chat.get("Notifies"))
+    if not chat.get("notifies") is None:
+        contact.addNotifies(chat.get("notifies"))
 
     widgetItem = QtWidgets.QListWidgetItem(ui_chat.chatList)
-    contact.id = chat.get("contact-id")
-    contact.isGroup = chat.get("isGroup")
+    contact.id = chat.get("id")
+    contact.isGroup = chat.get("isgroup")
 
     widgetItem.setSizeHint(contact.sizeHint())
     ui_chat.chatList.addItem(widgetItem)
@@ -497,6 +497,8 @@ def removeMediaToolButton_clicked():
 
 
 def addGroupToolButton_Clicked():
+    ui_chat.groupNameText.show()
+    ui_chat.groupNameText.setText("")
     ui_chat.addGroupToolButton.setEnabled(False)
     ui_chat.confirmGroupToolButton.show()
     ui_chat.cancelGroupToolButton.show()
@@ -518,23 +520,21 @@ def confirmGroupToolButton_Clicked():
                 return
             ids.append(i.id)
 
+        name = ui_chat.groupNameText.text().strip()
+
+        if name == "":
+            name = "My new group"
+
         j = {"id": 50,
-             "ids": ids
+             "ids": ids,
+             "name" : name
              }
 
         j = json.dumps(j)
 
-        # TODO: SEND TO SERVER THIS IN ORDER TO CREATE A NEW GROUP! THE SERVER MUST CREATE A GROUP WITH ALL ID + MYSELF
-
         SocketClient.sendMessage(j)
 
-        ui_chat.confirmGroupToolButton.hide()
-        ui_chat.cancelGroupToolButton.hide()
-        ui_chat.addGroupToolButton.setEnabled(True)
-        ui_chat.chatList.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
-        ui_chat.chatList.clearSelection()
-
-        ui_chat.isSelectingGroup = False
+        cancelGroupButton_clicked()
 
     else:
         print("Select at least 2 contacts.")
@@ -544,6 +544,7 @@ def confirmGroupToolButton_Clicked():
 def cancelGroupButton_clicked():
     ui_chat.confirmGroupToolButton.hide()
     ui_chat.cancelGroupToolButton.hide()
+    ui_chat.groupNameText.hide()
     ui_chat.addGroupToolButton.setEnabled(True)
     ui_chat.chatList.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
     ui_chat.chatList.clearSelection()
@@ -557,17 +558,7 @@ def logoutButton_clicked():
 
 def chatList_CurrentItemChanged(new, previous):
     if not ui_chat.isSelectingGroup:
-        con = ui_chat.chatList.itemWidget(ui_chat.chatList.item(ui_chat.chatList.currentRow()))
-        ui_chat.selectedChat = con
-        print("Selected chat: " + ui_chat.selectedChat.id + "  isGroup: " + str(ui_chat.selectedChat.isGroup))
-        m = {"id" : 90,
-             "chat-id" : ui_chat.selectedChat.id
-        }
-        m = json.dumps(m)
-        SocketClient.sendMessage(m)
-        print("Fetching chat: " + str(ui_chat.selectedChat.id))
-        # TODO: SEND A REQUEST TO THE SERVER TO FETCH MESSAGGES, LOAD THE CHAT AND CHECK IF SENDER IS ONLINE.
-
+        fetchSelectedChat()
 
 def addContactButton_clicked():
     email = ui_chat.searchContactLabel.text().strip()
@@ -600,6 +591,47 @@ def removeChatButton_clicked():
         SocketClient.sendMessage(r)
 
 
+#=========================CHAT VIEW======================================
+def resetChatView():
+    clearMessages()
+    ui_chat.headerChatFrame.hide()
+    ui_chat.sendBarFrame.setEnabled(False)
+
+def initChatView(j):
+    chatName = j["name"]
+    ui_chat.labelChatName.setText(chatName)
+
+    status = j["status"]
+
+    icon = QtGui.QIcon()
+    if status == "online":
+        icon.addPixmap(QtGui.QPixmap("Resources/green_dot.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+    else:
+        icon.addPixmap(QtGui.QPixmap("Resources/green_dot.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+
+    ui_chat.statusToolButton.setIcon(icon)
+    ui_chat.statusToolButton.show()
+
+    ui_chat.labelStatus.setText(status)
+
+    ui_chat.headerChatFrame.show()
+    ui_chat.sendBarFrame.show()
+
+    ui_chat.messageText.setText("")
+    removeMediaToolButton_clicked()
+
+    isGroup = j["isgroup"]
+
+    if isGroup:
+        ui_chat.statusToolButton.hide()
+
+    #TODO: LOAD MESSAGES... j["messages"] e addMessage
+    for message in j["messages"]:
+
+        addMessage(message, isGroup)
+
+
+
 ui_chat.chatList.currentItemChanged.connect(chatList_CurrentItemChanged)
 ui_chat.selectedChat = None
 
@@ -623,15 +655,45 @@ ui_chat.addContactToolButton.clicked.connect(addContactButton_clicked)
 
 ui_chat.logoutToolButton.clicked.connect(logoutButton_clicked)
 
-if ui_chat.name is not None:
-   ui_chat.userLabel.setText(ui_chat.name + " " + ui_chat.surname)
+ui_chat.groupNameText.hide()
 
 ui_chat.loadedContacts = []
 
 # ===========================================================================
 
+def fetchContacts():
+    r = {
+        "id": "80"
+    }
+
+    r = json.dumps(r)
+    SocketClient.sendMessage(r)
 
 
+def removeSelectedChat():
+    if ui_chat.selectedChat is not None:
+        r = {
+            "id": "70",
+            "chat-id": ui_chat.selectedChat.id,
+            "isGroup": ui_chat.selectedChat.isGroup
+        }
+
+        r = json.dumps(r)
+        SocketClient.sendMessage(r)
+
+
+def fetchSelectedChat():
+    con = ui_chat.chatList.itemWidget(ui_chat.chatList.item(ui_chat.chatList.currentRow()))
+    ui_chat.selectedChat = con
+    m = {"id": 90,
+         "chat-id": ui_chat.selectedChat.id
+         }
+    m = json.dumps(m)
+    SocketClient.sendMessage(m)
+    print("Fetching chat: " + str(ui_chat.selectedChat.id))
+
+
+fetchContacts()
 
 messages = [{"sender": "Christian",
              "time": "12:34",
@@ -653,7 +715,8 @@ for message in messages:
     addMessage(message, False)
 
 contacts = [
-    {"contact-id": "abcd123abcd",
+    {"chat-id": "abcd123abcd",
+     "contact-id" : "132dhuid",
      "name": "Christian Cavallo",
      "isGroup": False},
     {"contact-id": "abc123789bcdasf",
@@ -666,6 +729,8 @@ contacts = [
      "name": "Babbo Natale",
      "isGroup": False}
 ]
+
+
 for contact in contacts:
     addContact(contact)
     ui_chat.loadedContacts.append(contact)
