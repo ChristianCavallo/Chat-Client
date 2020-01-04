@@ -86,20 +86,32 @@ def onMessageReceived(message):
 
 
 
-    if id == 31: # Add contact response
+    if id == 31 or id == 51 or id == 71 : # Add contact response - delete chat response - create group response
         result = j["result"]
         if result is True:
-            pass
+            fetchContacts()
         else:
-            pass
-
-        pass
+            showdialog(j["content"])
 
     if id == 41: # Una message response
-        pass
+        chatid = j["chat-id"]
+        #primo caso la chat selezionata ha lo stesso id
+        if ui_chat.selectedChat is not None:
+            if ui_chat.selectedChat.id == chatid:
+                addMessage(j, ui_chat.selectedChat.isGroup)
+                return
 
-    if id == 51: # Una create group response
-        pass
+        #secondo caso: la chat è nella lista ma non è selezionata
+        for index in range(0, ui_chat.chatList.count()):
+            i = ui_chat.chatList.itemWidget(ui_chat.chatList.item(index))
+
+            if i.id == chatid:
+                i.addNotify()
+                return;
+
+        #terzo caso: la chat non è nella lista
+        fetchContacts()
+
 
     if id == 61:
         if j["media"] == "":
@@ -113,13 +125,6 @@ def onMessageReceived(message):
                 i.setMedia(j["media"])
                 Cacher.cacheMedia(j["media-id"], j["media"])
                 break;
-
-    if id == 71: # Una delete chat response
-        result = j["result"]
-        if result is True:
-            fetchContacts()
-        else:
-            showdialog("Error while deleting the selected chat!")
 
     if id == 81: #Fetch contacts response
         initContactsView(j["chats"])
@@ -240,7 +245,7 @@ class ChatWidget(QtWidgets.QWidget):
                                              "color: rgb(255, 255, 255);\n"
                                              "border-radius: 10px;")
         self.notificationLabel.setAlignment(QtCore.Qt.AlignCenter)
-        self.notificationLabel.setText("2")
+        self.notificationLabel.setText("0")
 
         self.horizontalLayout.addWidget(self.toolButton)
         self.horizontalLayout.addWidget(self.label)
@@ -248,13 +253,22 @@ class ChatWidget(QtWidgets.QWidget):
 
         self.setLayout(self.horizontalLayout)
 
-    def addNotifies(self, text):
-        self.notificationLabel.setText(text)
+    def setNotifies(self, n):
+        self.notificationLabel.setText(str(n))
+        if n == 0:
+            self.notificationLabel.hide()
+        else:
+            self.notificationLabel.show()
 
-    def cleanNotifies(self):
-        self.notificationLabel.setText("0")
-        self.notificationLabel.hide()
 
+    def clearNotifies(self):
+        self.setNotifies(0)
+
+    def addNotify(self):
+        self.notificationLabel.show()
+        a = int(self.notificationLabel.text())
+        a += 1
+        self.notificationLabel.setText(str(a))
 
 class Ui_ShowMedia(object):
     def setupUi(self, ShowMedia):
@@ -280,7 +294,7 @@ class Ui_ShowMedia(object):
 
 class MessageWidget(QtWidgets.QWidget):
 
-    def __init__(self, media_id=None, parent=None):
+    def __init__(self, media_id=None, showSender=False, parent=None):
         super(MessageWidget, self).__init__(parent)
 
         self.media_id = media_id
@@ -288,12 +302,22 @@ class MessageWidget(QtWidgets.QWidget):
         self.layout = QtWidgets.QHBoxLayout()
         self.layout.setSizeConstraint(QtWidgets.QLayout.SetMinimumSize)
 
-        self.groupBox = QtWidgets.QGroupBox()
-        self.groupBox.setMinimumSize(QtCore.QSize(290, 50))
-        self.groupBox.setMaximumSize(QtCore.QSize(290, 350))
+        self.frameBox = QtWidgets.QFrame()
+        self.frameBox.setMinimumSize(QtCore.QSize(290, 50))
+        self.frameBox.setMaximumSize(QtCore.QSize(290, 350))
 
         self.subLayout = QtWidgets.QVBoxLayout()
         self.subLayout.setSpacing(0)
+
+        self.nameLabel = QtWidgets.QLabel()
+        self.nameLabel.setStyleSheet("color: rgb(178, 0, 0);")
+        font1 = QtGui.QFont()
+        font1.setPointSize(8)
+        font1.setBold(True)
+        self.nameLabel.setFont(font1)
+        if showSender:
+            self.subLayout.addWidget(self.nameLabel)
+
         if not media_id == None:
             data = Cacher.getCachedMedia(media_id)
             self.media = QtWidgets.QLabel()
@@ -323,12 +347,13 @@ class MessageWidget(QtWidgets.QWidget):
                 self.downloadMediaToolButton.clicked.connect(self.getMedia)
                 self.subLayout.addWidget(self.downloadMediaToolButton)
 
+
         self.textMessage = QtWidgets.QLabel()
 
         # self.textMessage.setGeometry(QtCore.QRect(10, 20, 271, 100))
         self.textMessage.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
         self.textMessage.setWordWrap(True)
-        self.textMessage.setStyleSheet("margin-top: 5px")
+        #self.textMessage.setStyleSheet("margin-top: 5px")
         self.subLayout.addWidget(self.textMessage)
 
         self.textTime = QtWidgets.QLabel()
@@ -341,7 +366,8 @@ class MessageWidget(QtWidgets.QWidget):
 
         self.subLayout.addWidget(self.textTime)
 
-        self.groupBox.setLayout(self.subLayout)
+
+        self.frameBox.setLayout(self.subLayout)
 
         font = QtGui.QFont()
         font.setBold(True)
@@ -352,20 +378,20 @@ class MessageWidget(QtWidgets.QWidget):
 
     def setMessageStyle(self, received):
         if received:
-            self.groupBox.setStyleSheet("background-color: rgb(255, 255, 255); border-radius: 10px; margin-left: 5px;")
-            self.layout.addWidget(self.groupBox)
+            self.frameBox.setStyleSheet("background-color: rgb(255, 255, 255); border-radius: 10px; margin-left: 5px;")
+            self.layout.addWidget(self.frameBox)
             emptyText = QtWidgets.QLabel()
             self.layout.addWidget(emptyText)
 
         else:
-            self.groupBox.setStyleSheet(
+            self.frameBox.setStyleSheet(
                 "background-color:  rgb(219, 247, 197); border-radius: 10px; margin-right: 5px;")
             emptyText = QtWidgets.QLabel()
             self.layout.addWidget(emptyText)
-            self.layout.addWidget(self.groupBox)
+            self.layout.addWidget(self.frameBox)
 
     def setMessageName(self, name):
-        self.groupBox.setTitle(name + " said:")
+        self.nameLabel.setText(name)
 
     def getMedia(self):
         data = Cacher.getCachedMedia(self.media_id)
@@ -419,18 +445,18 @@ def clearMessages():
 def addMessage(message, showSender=True):
 
     myUser = ui_chat.user_id
-    if message.get("media") is None:
-        widget = MessageWidget()
+    if message.get("media") == "":
+        widget = MessageWidget(None, (showSender and myUser != message["sender_id"]))
     else:
-        widget = MessageWidget(message.get("media"))
+        widget = MessageWidget(message.get("media"), (showSender and myUser != message["sender_id"]))
 
     widget.textMessage.setText(message["content"])  # Imposta il contenuto del messaggio
     widget.setTime(
-        message["time"])  # TODO: Imposta il tempo del messaggio... potrebbe richiedere una formattazione del tipo hh:mm
+        message["time"])
     if showSender:
-        widget.setMessageName(message["sender"])  # Nome di colui che invia... solo se è un gruppo.
+        widget.setMessageName(message["senderName"])  # Nome di colui che invia... solo se è un gruppo.
 
-    widget.setMessageStyle(myUser != message["sender"])  # True se ho ricevuto, False se l'ho inviato io
+    widget.setMessageStyle(myUser != message["sender_id"])  # True se ho ricevuto, False se l'ho inviato io
 
     # Create QListWidgetItem
     widgetItem = QtWidgets.QListWidgetItem(ui_chat.messagesList)
@@ -450,8 +476,7 @@ def addContact(chat):
     contact = ChatWidget(chat.get("isGroup"))
     contact.label.setText(chat.get("name"))
 
-    if not chat.get("notifies") is None:
-        contact.addNotifies(chat.get("notifies"))
+    contact.setNotifies(chat.get("notifies"))
 
     widgetItem = QtWidgets.QListWidgetItem(ui_chat.chatList)
     contact.id = chat.get("chat-id")
@@ -467,20 +492,21 @@ def addContact(chat):
 
 def sendMessage(self):
     text = ui_chat.messageText.text().strip()
-
+    media = ui_chat.media
+    if media is None:
+        media = ""
     m = {
-        "id": "40",
+        "id": 40,
         "chat-id": ui_chat.selectedChat.id,
-        "text": text,
-        "media": ui_chat.media
+        "content": text,
+        "media": media
     }
 
     m = json.dumps(m)
 
-    # TODO: SEND THIS MESSAGE TO THE SERVER AND COMPLETE THE RECEPTION OF NEW MESSAGES AS WELL
     SocketClient.sendMessage(m)
     #print(m)
-
+    ui_chat.messageText.clear()
     if ui_chat.media is not None:
         removeMediaToolButton_clicked()
 
@@ -504,7 +530,8 @@ def showFileDialog():
             m = base64.b64encode(data)
             ui_chat.media = str(m, "utf-8")
 
-            print("Media selected: " + str(size) + " bytes")
+            print("Media selected: " + str(size) + " bytes: " + ui_chat.media)
+
             ui_chat.removeMediaToolButton.setEnabled(True)
 
 
@@ -538,7 +565,7 @@ def confirmGroupToolButton_Clicked():
                 showdialog("You can't add a group in a group!")
                 item.setSelected(False)
                 return
-            ids.append(i.id)
+            ids.append(i.user_id)
 
         name = ui_chat.groupNameText.text().strip()
 
@@ -573,52 +600,49 @@ def cancelGroupButton_clicked():
 
 def logoutButton_clicked():
     ChatForm.close()
-    SocketClient.close()
 
 
 def chatList_CurrentItemChanged(new, previous):
     if not ui_chat.isSelectingGroup:
-        fetchSelectedChat()
+        if new is not None :
+            con = ui_chat.chatList.itemWidget(ui_chat.chatList.item(ui_chat.chatList.currentRow()))
+            ui_chat.selectedChat = con
+            fetchSelectedChat()
+        else:
+            clearChatView()
 
 def addContactButton_clicked():
     email = ui_chat.searchContactLabel.text().strip()
+    print("email: " + email)
     from email.utils import parseaddr
-    email = parseaddr(email)
-
-    if len(email) < 3 or not email.cont:
+    email = parseaddr(email)[1]
+    print("email dopo: " + email)
+    if len(email) < 3:
         showdialog("Insert a valid email address please.")
         return
 
     req = {
-        "id": "30",
+        "id": 30,
         "email": email
     }
-
+    ui_chat.searchContactLabel.clear()
     req = json.dumps(req)
     SocketClient.sendMessage(req)
-    # TODO: SEND THE REQUEST TO THE SERVER TO ADD A NEW CONTACT
 
 
 def removeChatButton_clicked():
-    if ui_chat.selectedChat is not None:
-        r = {
-            "id": "70",
-            "chat-id": ui_chat.selectedChat.id,
-            "isGroup": ui_chat.selectedChat.isGroup
-        }
-
-        r = json.dumps(r)
-        SocketClient.sendMessage(r)
+    removeSelectedChat()
 
 
 #=========================CHAT VIEW======================================
-def resetChatView():
+
+def clearChatView():
     clearMessages()
     ui_chat.headerChatFrame.hide()
     ui_chat.sendBarFrame.setEnabled(False)
 
 def initChatView(j):
-    chatName = j["name"]
+    chatName = ui_chat.selectedChat.label.text()
     ui_chat.labelChatName.setText(chatName)
 
     status = j["status"]
@@ -635,20 +659,22 @@ def initChatView(j):
     ui_chat.labelStatus.setText(status)
 
     ui_chat.headerChatFrame.show()
-    ui_chat.sendBarFrame.show()
+    ui_chat.sendBarFrame.setEnabled(True)
 
     ui_chat.messageText.setText("")
     removeMediaToolButton_clicked()
 
-    isGroup = j["isgroup"]
+    isGroup = ui_chat.selectedChat.isGroup
 
     if isGroup:
         ui_chat.statusToolButton.hide()
 
-    #TODO: LOAD MESSAGES... j["messages"] e addMessage
+    clearMessages()
     for message in j["messages"]:
 
         addMessage(message, isGroup)
+
+    ui_chat.selectedChat.clearNotifies()
 
 
 def initContactsView(j):
@@ -660,6 +686,7 @@ def initContactsView(j):
         ui_chat.loadedContacts.append(chat)
 
 
+#ui_chat.messageText.installEventFilter()
 
 ui_chat.chatList.currentItemChanged.connect(chatList_CurrentItemChanged)
 ui_chat.selectedChat = None
@@ -687,6 +714,11 @@ ui_chat.logoutToolButton.clicked.connect(logoutButton_clicked)
 ui_chat.groupNameText.hide()
 
 ui_chat.loadedContacts = []
+ui_chat.selectedChat = None
+
+ui_chat.removeChatToolButton.clicked.connect(removeChatButton_clicked)
+
+clearChatView()
 
 # ===========================================================================
 
@@ -703,8 +735,7 @@ def removeSelectedChat():
     if ui_chat.selectedChat is not None:
         r = {
             "id": 70,
-            "chat-id": ui_chat.selectedChat.id,
-            "isGroup": ui_chat.selectedChat.isGroup
+            "chat-id": ui_chat.selectedChat.id
         }
 
         r = json.dumps(r)
@@ -712,8 +743,6 @@ def removeSelectedChat():
 
 
 def fetchSelectedChat():
-    con = ui_chat.chatList.itemWidget(ui_chat.chatList.item(ui_chat.chatList.currentRow()))
-    ui_chat.selectedChat = con
     m = {"id": 90,
          "chat-id": ui_chat.selectedChat.id
          }
@@ -741,8 +770,8 @@ messages = [{"sender": "Christian",
                 "media": "CgiKs1vudDn0HTPoUhN5Z7IOqBaE2lbM"
             }]
 
-for message in messages:
-    addMessage(message, False)
+#for message in messages:
+    #addMessage(message, False)
 
 contacts = [
     {"chat-id": "abcd123abcd",
