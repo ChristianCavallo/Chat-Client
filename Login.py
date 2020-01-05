@@ -13,9 +13,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_LoginForm(object):
     def setupUi(self, LoginForm):
         LoginForm.setObjectName("LoginForm")
-        LoginForm.resize(290, 388)
+        LoginForm.resize(290, 390)
         LoginForm.setMinimumSize(QtCore.QSize(250, 278))
-        LoginForm.setMaximumSize(QtCore.QSize(450, 400))
+        LoginForm.setMaximumSize(QtCore.QSize(290, 390))
         self.centralwidget = QtWidgets.QWidget(LoginForm)
         self.centralwidget.setObjectName("centralwidget")
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)

@@ -13,9 +13,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog_Registration(object):
     def setupUi(self, Dialog_Registration):
         Dialog_Registration.setObjectName("Dialog_Registration")
-        Dialog_Registration.resize(278, 410)
+        Dialog_Registration.resize(278, 408)
         Dialog_Registration.setMinimumSize(QtCore.QSize(200, 234))
-        Dialog_Registration.setMaximumSize(QtCore.QSize(1000, 5000))
+        Dialog_Registration.setMaximumSize(QtCore.QSize(278, 408))
         self.groupBox = QtWidgets.QGroupBox(Dialog_Registration)
         self.groupBox.setGeometry(QtCore.QRect(9, 30, 261, 371))
         self.groupBox.setStyleSheet("background-color: rgba(111,111,111, 0.1);")
