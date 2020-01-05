@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>250</width>
-    <height>278</height>
+    <width>290</width>
+    <height>388</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -18,8 +18,8 @@
   </property>
   <property name="maximumSize">
    <size>
-    <width>250</width>
-    <height>278</height>
+    <width>450</width>
+    <height>400</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -29,10 +29,10 @@
    <widget class="QGroupBox" name="groupBox">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>20</y>
-      <width>210</width>
-      <height>240</height>
+      <x>10</x>
+      <y>30</y>
+      <width>271</width>
+      <height>351</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -46,11 +46,16 @@
    <widget class="QToolButton" name="toolButton">
     <property name="geometry">
      <rect>
-      <x>58</x>
-      <y>95</y>
+      <x>50</x>
+      <y>140</y>
       <width>21</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
@@ -72,15 +77,20 @@
    <widget class="QLineEdit" name="lineEdit_email">
     <property name="geometry">
      <rect>
-      <x>50</x>
-      <y>90</y>
-      <width>151</width>
-      <height>31</height>
+      <x>40</x>
+      <y>130</y>
+      <width>211</width>
+      <height>41</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
     <property name="styleSheet">
-     <string notr="true">padding-left: 30px;
-border-radius: 15px;
+     <string notr="true">padding-left: 35px;
+border-radius: 20px;
 background-color: rgba(255,255,255, 0.8);</string>
     </property>
     <property name="placeholderText">
@@ -90,15 +100,20 @@ background-color: rgba(255,255,255, 0.8);</string>
    <widget class="QLineEdit" name="lineEdit_password">
     <property name="geometry">
      <rect>
-      <x>50</x>
-      <y>130</y>
-      <width>151</width>
-      <height>31</height>
+      <x>40</x>
+      <y>180</y>
+      <width>211</width>
+      <height>41</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
     <property name="styleSheet">
-     <string notr="true">padding-left: 30px;
-border-radius: 15px;
+     <string notr="true">padding-left: 35px;
+border-radius: 20px;
 background-color: rgba(255,255,255, 0.8);</string>
     </property>
     <property name="placeholderText">
@@ -108,11 +123,16 @@ background-color: rgba(255,255,255, 0.8);</string>
    <widget class="QToolButton" name="toolButton_2">
     <property name="geometry">
      <rect>
-      <x>58</x>
-      <y>135</y>
+      <x>50</x>
+      <y>190</y>
       <width>21</width>
       <height>21</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgba(255,255,255,0);</string>
@@ -134,10 +154,10 @@ background-color: rgba(255,255,255, 0.8);</string>
    <widget class="QToolButton" name="toolButton_3">
     <property name="geometry">
      <rect>
-      <x>95</x>
+      <x>106</x>
       <y>0</y>
-      <width>57</width>
-      <height>56</height>
+      <width>71</width>
+      <height>71</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -148,29 +168,33 @@ background-color: rgba(255,255,255, 0.8);</string>
     </property>
     <property name="icon">
      <iconset>
-      <normaloff>Resources/login.png</normaloff>Resources/login.png</iconset>
+      <normaloff>Resources/user_contact.png</normaloff>Resources/user_contact.png</iconset>
     </property>
     <property name="iconSize">
      <size>
-      <width>50</width>
-      <height>50</height>
+      <width>70</width>
+      <height>70</height>
      </size>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButton_Login">
     <property name="geometry">
      <rect>
-      <x>60</x>
-      <y>170</y>
-      <width>131</width>
-      <height>31</height>
+      <x>40</x>
+      <y>230</y>
+      <width>211</width>
+      <height>51</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgba(0,175, 206);
 color: rgba(255,255,255);
-border-radius: 10px;
-font-size: 10px;</string>
+border-radius: 10px;</string>
     </property>
     <property name="text">
      <string>Login</string>
@@ -179,17 +203,21 @@ font-size: 10px;</string>
    <widget class="QPushButton" name="pushButton_createAccount">
     <property name="geometry">
      <rect>
-      <x>60</x>
-      <y>210</y>
-      <width>131</width>
-      <height>31</height>
+      <x>40</x>
+      <y>320</y>
+      <width>211</width>
+      <height>51</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="styleSheet">
      <string notr="true">background-color: rgba(0,175, 206);
 color: rgba(255,255,255);
-border-radius: 10px;
-font-size: 10px;</string>
+border-radius: 10px;</string>
     </property>
     <property name="text">
      <string>Create an account</string>
@@ -198,18 +226,25 @@ font-size: 10px;</string>
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>100</x>
-      <y>60</y>
-      <width>51</width>
-      <height>21</height>
+      <x>10</x>
+      <y>80</y>
+      <width>271</width>
+      <height>31</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <pointsize>20</pointsize>
+     </font>
+    </property>
     <property name="styleSheet">
-     <string notr="true">color: rgba(0,175, 206);
-font-size: 15px;</string>
+     <string notr="true">color: rgba(0,175, 206);</string>
     </property>
     <property name="text">
      <string>Sign in</string>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
    </widget>
    <zorder>groupBox</zorder>

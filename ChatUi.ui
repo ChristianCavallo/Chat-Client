@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QWidget" name="Form">
+ <class>Chat</class>
+ <widget class="QWidget" name="Chat">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>1020</width>
-    <height>757</height>
+    <height>672</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -35,7 +35,7 @@ background-color: rgb(229, 221, 213);</string>
      <x>314</x>
      <y>70</y>
      <width>711</width>
-     <height>640</height>
+     <height>531</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -70,8 +70,8 @@ background-color: rgb(229, 221, 213);</string>
    <widget class="QLabel" name="labelStatus">
     <property name="geometry">
      <rect>
-      <x>89</x>
-      <y>35</y>
+      <x>87</x>
+      <y>38</y>
       <width>531</width>
       <height>20</height>
      </rect>
@@ -80,15 +80,15 @@ background-color: rgb(229, 221, 213);</string>
      <font>
       <pointsize>10</pointsize>
       <weight>50</weight>
-      <italic>true</italic>
+      <italic>false</italic>
       <bold>false</bold>
      </font>
     </property>
     <property name="styleSheet">
-     <string notr="true">text-color: &quot;red&quot;</string>
+     <string notr="true">color: rgb(115, 115, 115);</string>
     </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; font-style:normal; color:#7e7e7e;&quot;&gt;online now&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600; font-style:normal; color:#7e7e7e;&quot;&gt;Last access 21 Dec 20:42&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="alignment">
      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -187,9 +187,9 @@ background-color: rgb(229, 221, 213);</string>
     <property name="geometry">
      <rect>
       <x>650</x>
-      <y>10</y>
-      <width>51</width>
-      <height>51</height>
+      <y>15</y>
+      <width>41</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -221,7 +221,7 @@ background-color: rgb(229, 221, 213);</string>
      <x>0</x>
      <y>0</y>
      <width>316</width>
-     <height>771</height>
+     <height>671</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -249,8 +249,8 @@ background-color: rgb(229, 221, 213);</string>
    <widget class="QToolButton" name="userIconButton">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>10</y>
+      <x>130</x>
+      <y>5</y>
       <width>51</width>
       <height>51</height>
      </rect>
@@ -284,10 +284,10 @@ background-color: rgb(229, 221, 213);</string>
    <widget class="QLabel" name="userLabel">
     <property name="geometry">
      <rect>
-      <x>70</x>
-      <y>10</y>
-      <width>191</width>
-      <height>51</height>
+      <x>0</x>
+      <y>60</y>
+      <width>311</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="font">
@@ -297,6 +297,12 @@ background-color: rgb(229, 221, 213);</string>
     </property>
     <property name="text">
      <string>Noemi Buggea</string>
+    </property>
+    <property name="scaledContents">
+     <bool>true</bool>
+    </property>
+    <property name="alignment">
+     <set>Qt::AlignCenter</set>
     </property>
     <property name="wordWrap">
      <bool>true</bool>
@@ -361,7 +367,7 @@ background-color: rgb(255, 255, 255);</string>
       <x>0</x>
       <y>150</y>
       <width>316</width>
-      <height>541</height>
+      <height>451</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -372,9 +378,9 @@ background-color: rgb(255, 255, 255);</string>
     <property name="geometry">
      <rect>
       <x>120</x>
-      <y>700</y>
+      <y>600</y>
       <width>71</width>
-      <height>61</height>
+      <height>71</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -397,7 +403,7 @@ background-color: rgb(255, 255, 255);</string>
    <widget class="QToolButton" name="logoutToolButton">
     <property name="geometry">
      <rect>
-      <x>270</x>
+      <x>10</x>
       <y>10</y>
       <width>41</width>
       <height>41</height>
@@ -428,9 +434,9 @@ background-color: rgb(255, 255, 255);</string>
     <property name="geometry">
      <rect>
       <x>220</x>
-      <y>700</y>
+      <y>600</y>
       <width>51</width>
-      <height>61</height>
+      <height>71</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -454,9 +460,9 @@ background-color: rgb(255, 255, 255);</string>
     <property name="geometry">
      <rect>
       <x>270</x>
-      <y>700</y>
+      <y>600</y>
       <width>41</width>
-      <height>61</height>
+      <height>71</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -480,7 +486,7 @@ background-color: rgb(255, 255, 255);</string>
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>710</y>
+      <y>615</y>
       <width>191</width>
       <height>41</height>
      </rect>
@@ -522,9 +528,9 @@ background-color: rgb(255, 255, 255);</string>
    <property name="geometry">
     <rect>
      <x>310</x>
-     <y>710</y>
+     <y>600</y>
      <width>721</width>
-     <height>61</height>
+     <height>71</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -542,8 +548,8 @@ background-color: rgb(255, 255, 255);</string>
     </property>
     <property name="geometry">
      <rect>
-      <x>53</x>
-      <y>30</y>
+      <x>56</x>
+      <y>35</y>
       <width>31</width>
       <height>31</height>
      </rect>
@@ -568,10 +574,10 @@ background-color: rgb(255, 255, 255);</string>
    <widget class="QToolButton" name="sendToolButton">
     <property name="geometry">
      <rect>
-      <x>640</x>
-      <y>10</y>
-      <width>41</width>
-      <height>41</height>
+      <x>650</x>
+      <y>20</y>
+      <width>31</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="styleSheet">
@@ -594,8 +600,8 @@ background-color: rgb(255, 255, 255);</string>
    <widget class="QToolButton" name="mediaToolButton">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>0</y>
+      <x>15</x>
+      <y>5</y>
       <width>51</width>
       <height>61</height>
      </rect>
@@ -624,7 +630,7 @@ background-color: rgb(255, 255, 255);</string>
     <property name="geometry">
      <rect>
       <x>90</x>
-      <y>10</y>
+      <y>15</y>
       <width>601</width>
       <height>41</height>
      </rect>

@@ -3,9 +3,8 @@ import sys
 
 from PyQt5 import QtWidgets, QtGui, QtCore
 
-from ChatUi import Ui_Form
+from ChatUi import Ui_Chat
 from Connection import client
-from events import Events
 import json
 import base64
 import hashlib
@@ -16,8 +15,10 @@ from Utils import Cacher
 
 
 
-
+os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 app = QtWidgets.QApplication(sys.argv)
+app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+
 LoginForm = QtWidgets.QMainWindow()
 ui_Login = Ui_LoginForm()
 ui_Login.setupUi(LoginForm)
@@ -25,7 +26,7 @@ LoginForm.show()
 
 
 ChatForm = QtWidgets.QWidget()
-ui_chat = Ui_Form()
+ui_chat = Ui_Chat()
 ui_chat.setupUi(ChatForm)
 ui_chat.user_id  = None
 
@@ -699,7 +700,6 @@ ui_chat.confirmGroupToolButton.clicked.connect(confirmGroupToolButton_Clicked)
 ui_chat.cancelGroupToolButton.clicked.connect(cancelGroupButton_clicked)
 ui_chat.isSelectingGroup = False
 
-ui_chat.removeMediaToolButton.clicked.connect(removeChatButton_clicked)
 
 ui_chat.mediaToolButton.clicked.connect(showFileDialog)
 ui_chat.removeMediaToolButton.clicked.connect(removeMediaToolButton_clicked)

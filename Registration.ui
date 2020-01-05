@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>262</width>
-    <height>278</height>
+    <width>278</width>
+    <height>410</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -28,10 +28,10 @@
   <widget class="QGroupBox" name="groupBox">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>20</y>
-     <width>200</width>
-     <height>241</height>
+     <x>9</x>
+     <y>30</y>
+     <width>261</width>
+     <height>371</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -40,40 +40,14 @@
    <property name="title">
     <string/>
    </property>
-   <widget class="QToolButton" name="Signup_toolButton">
-    <property name="geometry">
-     <rect>
-      <x>16</x>
-      <y>170</y>
-      <width>161</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <property name="styleSheet">
-     <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
-    </property>
-    <property name="text">
-     <string/>
-    </property>
-    <property name="icon">
-     <iconset>
-      <normaloff>Resources/register_button.png</normaloff>Resources/register_button.png</iconset>
-    </property>
-    <property name="iconSize">
-     <size>
-      <width>300</width>
-      <height>90</height>
-     </size>
-    </property>
-   </widget>
   </widget>
   <widget class="QToolButton" name="toolButton">
    <property name="geometry">
     <rect>
-     <x>80</x>
+     <x>100</x>
      <y>0</y>
-     <width>100</width>
-     <height>61</height>
+     <width>71</width>
+     <height>71</height>
     </rect>
    </property>
    <property name="styleSheet">
@@ -84,22 +58,22 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>Resources/register-icon.png</normaloff>Resources/register-icon.png</iconset>
+     <normaloff>Resources/send.png</normaloff>Resources/send.png</iconset>
    </property>
    <property name="iconSize">
     <size>
-     <width>50</width>
-     <height>50</height>
+     <width>70</width>
+     <height>70</height>
     </size>
    </property>
   </widget>
   <widget class="QLineEdit" name="lineEdit_name">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>70</y>
-     <width>161</width>
-     <height>21</height>
+     <x>30</x>
+     <y>80</y>
+     <width>221</width>
+     <height>41</height>
     </rect>
    </property>
    <property name="minimumSize">
@@ -108,8 +82,13 @@
      <height>21</height>
     </size>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
    <property name="styleSheet">
-    <string notr="true">border-radius: 10px;
+    <string notr="true">border-radius: 20px;
 padding-left: 10px;
 background-color: rgba(255,255,255, 0.8);</string>
    </property>
@@ -120,10 +99,10 @@ background-color: rgba(255,255,255, 0.8);</string>
   <widget class="QLineEdit" name="lineEdit_surname">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>100</y>
-     <width>161</width>
-     <height>20</height>
+     <x>30</x>
+     <y>140</y>
+     <width>221</width>
+     <height>41</height>
     </rect>
    </property>
    <property name="minimumSize">
@@ -132,8 +111,13 @@ background-color: rgba(255,255,255, 0.8);</string>
      <height>20</height>
     </size>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
    <property name="styleSheet">
-    <string notr="true">border-radius: 10px;
+    <string notr="true">border-radius: 20px;
 padding-left: 10px;
 background-color: rgba(255,255,255, 0.8);</string>
    </property>
@@ -144,10 +128,10 @@ background-color: rgba(255,255,255, 0.8);</string>
   <widget class="QLineEdit" name="lineEdit_email">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>130</y>
-     <width>161</width>
-     <height>20</height>
+     <x>30</x>
+     <y>200</y>
+     <width>221</width>
+     <height>41</height>
     </rect>
    </property>
    <property name="minimumSize">
@@ -156,8 +140,13 @@ background-color: rgba(255,255,255, 0.8);</string>
      <height>20</height>
     </size>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
    <property name="styleSheet">
-    <string notr="true">border-radius: 10px;
+    <string notr="true">border-radius: 20px;
 padding-left: 10px;
 background-color: rgba(255,255,255, 0.8);</string>
    </property>
@@ -168,10 +157,10 @@ background-color: rgba(255,255,255, 0.8);</string>
   <widget class="QLineEdit" name="lineEdit_password">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>160</y>
-     <width>161</width>
-     <height>20</height>
+     <x>30</x>
+     <y>260</y>
+     <width>221</width>
+     <height>41</height>
     </rect>
    </property>
    <property name="minimumSize">
@@ -186,13 +175,49 @@ background-color: rgba(255,255,255, 0.8);</string>
      <height>16777215</height>
     </size>
    </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
    <property name="styleSheet">
-    <string notr="true">border-radius: 10px;
+    <string notr="true">border-radius: 20px;
 padding-left: 10px;
 background-color: rgba(255,255,255, 0.8);</string>
    </property>
    <property name="placeholderText">
     <string>Password...</string>
+   </property>
+  </widget>
+  <widget class="QToolButton" name="Signup_toolButton">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>310</y>
+     <width>261</width>
+     <height>101</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: rgba(255, 255, 255, 0);</string>
+   </property>
+   <property name="text">
+    <string/>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normaloff>Resources/register_button.png</normaloff>Resources/register_button.png</iconset>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>300</width>
+     <height>90</height>
+    </size>
    </property>
   </widget>
  </widget>
