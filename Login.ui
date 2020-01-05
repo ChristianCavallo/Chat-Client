@@ -154,7 +154,7 @@ background-color: rgba(255,255,255, 0.8);</string>
    <widget class="QToolButton" name="toolButton_3">
     <property name="geometry">
      <rect>
-      <x>106</x>
+      <x>108</x>
       <y>0</y>
       <width>71</width>
       <height>71</height>
@@ -168,7 +168,7 @@ background-color: rgba(255,255,255, 0.8);</string>
     </property>
     <property name="icon">
      <iconset>
-      <normaloff>Resources/user_contact.png</normaloff>Resources/user_contact.png</iconset>
+      <normaloff>Resources/login.png</normaloff>Resources/login.png</iconset>
     </property>
     <property name="iconSize">
      <size>

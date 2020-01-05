@@ -44,7 +44,7 @@
   <widget class="QToolButton" name="toolButton">
    <property name="geometry">
     <rect>
-     <x>100</x>
+     <x>105</x>
      <y>0</y>
      <width>71</width>
      <height>71</height>
@@ -58,7 +58,7 @@
    </property>
    <property name="icon">
     <iconset>
-     <normaloff>Resources/send.png</normaloff>Resources/send.png</iconset>
+     <normaloff>Resources/register-icon.png</normaloff>Resources/register-icon.png</iconset>
    </property>
    <property name="iconSize">
     <size>
