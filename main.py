@@ -14,7 +14,6 @@ from Registration import Ui_Dialog_Registration
 from Utils import Cacher
 
 
-print("ciao")
 os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 app = QtWidgets.QApplication(sys.argv)
 app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
