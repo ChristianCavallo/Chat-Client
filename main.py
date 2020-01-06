@@ -14,9 +14,13 @@ from Registration import Ui_Dialog_Registration
 from Utils import Cacher
 
 
-os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+print("ciao")
+#os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+os.environ["QT_SCALE_FACTOR_ROUNDING_POLICY"] = "3"
+
 app = QtWidgets.QApplication(sys.argv)
 app.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+
 
 LoginForm = QtWidgets.QMainWindow()
 ui_Login = Ui_LoginForm()
@@ -480,7 +484,7 @@ def addContact(chat):
 
     widgetItem = QtWidgets.QListWidgetItem(ui_chat.chatList)
     contact.id = chat.get("chat-id")
-    contact.user_id = chat.get("contact-id")
+    contact.users_id = chat.get("contacts-id")
     contact.isGroup = chat.get("isGroup")
 
     widgetItem.setSizeHint(contact.sizeHint())
@@ -565,7 +569,7 @@ def confirmGroupToolButton_Clicked():
                 showdialog("You can't add a group in a group!")
                 item.setSelected(False)
                 return
-            ids.append(i.user_id)
+            ids.append(i.users_id[0])
 
         name = ui_chat.groupNameText.text().strip()
 
@@ -668,6 +672,25 @@ def initChatView(j):
 
     if isGroup:
         ui_chat.statusToolButton.hide()
+
+        final_name = ""
+        others = False
+        for par in ui_chat.selectedChat.users_id:
+            find = False
+            for contact in ui_chat.loadedContacts:
+                if contact["isGroup"] is False and par == contact["contacts-id"][0]:
+                    final_name = final_name + contact["name"] + ", "
+                    find = True
+
+            if not find:
+                others = True
+                
+        if others:
+            final_name += "others..."
+        else:
+            final_name = final_name[:-2]
+
+        ui_chat.labelStatus.setText(final_name)
 
     clearMessages()
     for message in j["messages"]:
@@ -788,10 +811,6 @@ contacts = [
      "isGroup": False}
 ]
 
-
-for contact in contacts:
-    #addContact(contact)
-    ui_chat.loadedContacts.append(contact)
 
 
 fetchContacts()
