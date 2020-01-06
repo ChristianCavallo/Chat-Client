@@ -165,10 +165,19 @@ class SocketClient(QtCore.QThread):
                         print("The length of payload isn't      ormal: " + str(num))
                         continue
 
-                    content = self.sock.recv(num)
-                    if len(content) != num:
-                        print("Received " + len(content) + " but expected " + str(num))
-                        continue
+                    content = bytearray()
+                    while num > 0:
+                        payload_part = self.sock.recv(num)
+
+                        if len(payload_part) <= 0:
+                            continue
+                        num -= len(payload_part)
+                        content += payload_part
+
+                    
+                   # if len(content) != num:
+                    #    print("Received " + len(content) + " but expected " + str(num))
+                    #   continue
 
                     data = self.sock.recv(4)
                     num = struct.unpack('<i', data[:4])[0]
