@@ -14,8 +14,7 @@ from Registration import Ui_Dialog_Registration
 from Utils import Cacher
 
 
-print("ciao")
-#os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
+
 os.environ["QT_SCALE_FACTOR_ROUNDING_POLICY"] = "3"
 
 app = QtWidgets.QApplication(sys.argv)
@@ -381,6 +380,11 @@ class MessageWidget(QtWidgets.QWidget):
         self.setLayout(self.layout)
 
     def setMessageStyle(self, received):
+        if self.nameLabel.text() == "Server":
+            self.frameBox.setStyleSheet("background-color: rgb(255, 255, 255); border-radius: 10px; margin-left: 5px;")
+            self.layout.addWidget(self.frameBox)
+            return
+
         if received:
             self.frameBox.setStyleSheet("background-color: rgb(255, 255, 255); border-radius: 10px; margin-left: 5px;")
             self.layout.addWidget(self.frameBox)
@@ -395,6 +399,8 @@ class MessageWidget(QtWidgets.QWidget):
             self.layout.addWidget(self.frameBox)
 
     def setMessageName(self, name):
+        if name == "Server":
+            self.nameLabel.setStyleSheet("color: rgb(43,87,151);")
         self.nameLabel.setText(name)
 
     def getMedia(self):

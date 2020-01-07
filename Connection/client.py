@@ -174,7 +174,7 @@ class SocketClient(QtCore.QThread):
                         num -= len(payload_part)
                         content += payload_part
 
-                    
+
                    # if len(content) != num:
                     #    print("Received " + len(content) + " but expected " + str(num))
                     #   continue
