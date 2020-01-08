@@ -161,7 +161,7 @@ class SocketClient(QtCore.QThread):
                     data = self.sock.recv(4)
                     num = struct.unpack('<i', data[:4])[0]
 
-                    if num < 0 or num > 1000000:
+                    if num < 0:
                         print("The length of payload isn't      ormal: " + str(num))
                         continue
 
@@ -239,8 +239,12 @@ class SocketClient(QtCore.QThread):
                 part2 = struct.pack("<I", len(content))
 
             part4 = struct.pack("<I", 43214321)
+            self.sock.send(part1)
+            self.sock.send(part2)
 
-            self.sock.sendall(part1 + part2 + content + part4)
+            sent = self.sock.send(content)
+            print("Payload was: " + str(len(content)) + " and sent is: " + str(sent))
+            self.sock.send(part4)
 
             # print("Message sent to the server: " + message)
         except:

@@ -137,7 +137,7 @@ def onMessageReceived(message):
     # TODO: Se la chat che sto fetchando non è un gruppo, mi aspetto che nella risposta ci sia anche l'ultimo accesso dell'interlocutore.
 
 
-SocketClient = client.SocketClient(('localhost', 15000))
+SocketClient = client.SocketClient(('5.79.72.99', 15000))
 
 #SocketClient.registerOnReceiveCallback(onMessageReceived)
 SocketClient.onReceiveCallback.connect(onMessageReceived)
@@ -185,6 +185,7 @@ def register():
     SocketClient.sendMessage(req)
 
 ui_Login.pushButton_Login.clicked.connect(login)
+ui_Login.lineEdit_password.returnPressed.connect(ui_Login.pushButton_Login.click)
 ui_Login.pushButton_createAccount.clicked.connect(openWindowRegistration)
 
 #====================================================
@@ -734,6 +735,7 @@ ui_chat.removeMediaToolButton.clicked.connect(removeMediaToolButton_clicked)
 ui_chat.media = None
 
 ui_chat.sendToolButton.clicked.connect(sendMessage)
+ui_chat.messageText.returnPressed.connect(ui_chat.sendToolButton.click)
 
 ui_chat.addContactToolButton.clicked.connect(addContactButton_clicked)
 
