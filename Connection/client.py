@@ -113,7 +113,6 @@ class SocketClient(QtCore.QThread):
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.address = address
-        #self.events = Events(("onClosed", "onConnect", "onMessageReceived"))
 
         self.crypto = Cryptographer()
         QtCore.QThread.__init__(self)
@@ -138,6 +137,7 @@ class SocketClient(QtCore.QThread):
     def run(self):
         while not self.stopFlag:
             try:
+                print("Try to connect to the server")
                 self.sock.connect(self.address)
             except:
                 print("Can't reach the server.")
@@ -220,12 +220,12 @@ class SocketClient(QtCore.QThread):
                         #self.onReceiveCallback(message)
 
             except ConnectionError:
-                print("An exception occurred while receiving: " + str(sys.stderr))
-                self.close()
-                return
+                print("Socket error: " + str(sys.stderr))
 
-            print("Closing the socket cause receive was 0.")
-            self.close()
+            print("Connection lost.")
+            self.close(True)
+
+        print("I'm out of scope cause " + str(self.stopFlag))
 
     def sendMessage(self, message):
 
@@ -243,7 +243,7 @@ class SocketClient(QtCore.QThread):
             self.sock.send(part2)
 
             sent = self.sock.send(content)
-            print("Payload was: " + str(len(content)) + " and sent is: " + str(sent))
+            #print("Payload was: " + str(len(content)) + " and sent is: " + str(sent))
             self.sock.send(part4)
 
             # print("Message sent to the server: " + message)
@@ -258,9 +258,12 @@ class SocketClient(QtCore.QThread):
         keyJson = json.dumps(keyJson)
         self.sendMessage(keyJson)
 
-    def close(self):
+    def close(self, reset = False):
         self.stopFlag = True
         # self.sock.shutdown(socket.SHUT_RDWR)
         self.sock.close()
         self.onConnectionClosedCallback()
+        if reset:
+            print("Resetting the connection.")
+            self.reset()
         #self.events.onClosed()
