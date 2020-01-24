@@ -16,7 +16,6 @@ Server repository: [https://github.com/ChristianCavallo/Chat-Server]
 ![Chat](https://imgur.com/download/muw2gjk)
 
 
-
 ## Required Packages
 - PyQt5
 - PyCryptoDome <- Support for cryptography keys generation
