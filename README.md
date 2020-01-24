@@ -1,5 +1,6 @@
 # Chat - Client
 This project has been developed for Advanced Programming Languages's course in University of Catania.
+Server repository: [https://github.com/ChristianCavallo/Chat-Server]
 
 ## Features
 -	UserFriendly GUI (PyQT)
