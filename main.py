@@ -31,6 +31,9 @@ ChatForm = QtWidgets.QWidget()
 ui_chat = Ui_Chat()
 ui_chat.setupUi(ChatForm)
 ui_chat.user_id  = None
+ui_chat.email = None
+ui_chat.password = None
+ui_chat.isRecovering = False
 
 
 def showdialog(text):
@@ -48,7 +51,15 @@ def showdialog(text):
 
 
 def onConnect():
-    print("Connected")
+    if ui_chat.user_id is not None:
+        print("Connection recovered! Now i should recover your login.")
+        ui_chat.isRecovering = True
+        clearContacts()
+        clearChatView()
+        clearMessages()
+        login()
+    else:
+        print("Connected")
 
 def onClosed():
     print("Connection closed")
@@ -85,7 +96,12 @@ def onMessageReceived(message):
             
             ui_chat.userLabel.setText(ui_chat.name + " " + ui_chat.surname)
             print("Login success! " + ui_chat.user_id + "  " + ui_chat.name + " " + ui_chat.surname)
-            LoginForm.close()
+
+            if ui_chat.isRecovering:
+                fetchContacts()
+                ui_chat.isRecovering = False
+            else:
+                LoginForm.close()
 
 
 
@@ -150,14 +166,25 @@ SocketClient.registerOnConnectionClosedCallback(onClosed)
 #=============== LOGIN SIGNALS ======================
 
 def login():
-    password = ui_Login.lineEdit_password.text().strip()
+    if ui_chat.isRecovering:  # REFLECTION
+        email = ui_chat.email
+        password = ui_chat.password
+    else:
+        email = ui_Login.lineEdit_email.text().strip()
+        password = ui_Login.lineEdit_password.text().strip()
+        password = hashlib.md5(password.encode()).hexdigest()
+
     message = {"id": 20,
-               "email": ui_Login.lineEdit_email.text().strip(),
-               "password": hashlib.md5(password.encode()).hexdigest()
+               "email": email,
+               "password": password
                }
     print("Sending a login request with data: " +  str(message))
+
     message = json.dumps(message)
     SocketClient.sendMessage(message)
+
+    ui_chat.email = email
+    ui_chat.password = password
 
 def openWindowRegistration():
     LoginForm.hide()

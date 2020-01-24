@@ -2,6 +2,7 @@ import socket
 import struct
 import sys
 import json
+import time
 
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES
@@ -16,13 +17,14 @@ from PyQt5 import QtCore
 
 
 class Cryptographer(object):
-    publickey = 0
+
 
     def __init__(self):
         (pubkey, privatekey) = rsa_.newkeys(1024)
         self.publickey = pubkey.save_pkcs1("PEM").decode("utf-8")
         self.key = RSA.import_key(privatekey.save_pkcs1("PEM").decode("utf-8"))
         self.decipher = PKCS1_OAEP.new(self.key)
+        print("Chiphers ready")
 
     def encrypt(self, message):
         # Impostare i primi 6 bytes di cui 5 -> Dimensione chiave
@@ -128,11 +130,11 @@ class SocketClient(QtCore.QThread):
         self.onConnectionClosedCallback = callback
 
     def reset(self):
+        self.stopFlag = False
         self.isCrypted_AES = False
         self.isCrypted_RSA = False
-        self.stopFlag = False
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.crypto = Cryptographer()
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def run(self):
         while not self.stopFlag:
@@ -142,6 +144,7 @@ class SocketClient(QtCore.QThread):
             except:
                 print("Can't reach the server.")
                 #self.close()
+                time.sleep(1000)
                 continue
 
             try:
@@ -215,9 +218,7 @@ class SocketClient(QtCore.QThread):
                         message = content.decode("utf-8",)
                         j = json.loads(message)
 
-                        #self.events.onMessageReceived(message)
                         self.onReceiveCallback.emit(message)
-                        #self.onReceiveCallback(message)
 
             except ConnectionError:
                 print("Socket error: " + str(sys.stderr))
@@ -225,7 +226,7 @@ class SocketClient(QtCore.QThread):
             print("Connection lost.")
             self.close(True)
 
-        print("I'm out of scope cause " + str(self.stopFlag))
+        print("Out scope, Thread is going to die.")
 
     def sendMessage(self, message):
 
@@ -257,6 +258,7 @@ class SocketClient(QtCore.QThread):
                    }
         keyJson = json.dumps(keyJson)
         self.sendMessage(keyJson)
+        print("Sending my security keys...")
 
     def close(self, reset = False):
         self.stopFlag = True
