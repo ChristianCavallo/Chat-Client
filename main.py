@@ -217,6 +217,7 @@ ui_Login.pushButton_createAccount.clicked.connect(openWindowRegistration)
 
 #====================================================
 
+
 code = app.exec_()
 print("Login form closed with code " + str(code))
 
@@ -224,11 +225,7 @@ if ui_chat.user_id is None:
     SocketClient.close()
     sys.exit(0)
 
-#app = QtWidgets.QApplication(sys.argv)
-
 ChatForm.show()
-
-
 
 
 
@@ -321,7 +318,6 @@ class Ui_ShowMedia(object):
     def retranslateUi(self, ShowMedia):
         _translate = QtCore.QCoreApplication.translate
         ShowMedia.setWindowTitle(_translate("ShowMedia", "Media Viewer"))
-
 
 class MessageWidget(QtWidgets.QWidget):
 
@@ -469,7 +465,6 @@ class MessageWidget(QtWidgets.QWidget):
         self.mediaUi.setupUi(self.mediaForm)
         self.mediaUi.label.setPixmap(QtGui.QPixmap.fromImage(self.image))
         self.mediaForm.show()
-
 
 # ===============================================================
 
@@ -809,48 +804,9 @@ def fetchSelectedChat():
 
 
 
-
-messages = [{"sender": "Christian",
-             "time": "12:34",
-             "content": "Ciao pollo come stai?"
-             },
-            {
-                "sender": "Pollo",
-                "time": "12:35",
-                "content": "Ciao chry, tutto bene tu?"
-            },
-            {
-                "id-sender" : "aisjfsjafso",
-                "sender": "Christian",
-                "time": "12:40",
-                "content": "Bene bene, tua madre è polla!",
-                "media": "CgiKs1vudDn0HTPoUhN5Z7IOqBaE2lbM"
-            }]
-
-#for message in messages:
-    #addMessage(message, False)
-
-contacts = [
-    {"chat-id": "abcd123abcd",
-     "contact-id" : "132dhuid",
-     "name": "Christian Cavallo",
-     "isGroup": False},
-    {"contact-id": "abc123789bcdasf",
-     "name": "Ciao Pollo",
-     "isGroup": False},
-    {"contact-id": "ab8679cd",
-     "name": "Kirito Harem",
-     "isGroup": True},
-    {"contact-id": "a234432233abcd",
-     "name": "Babbo Natale",
-     "isGroup": False}
-]
-
-
-
 fetchContacts()
 
 code = app.exec_()
 SocketClient.close()
 sys.exit(code)
-# sys.exit(app.exec_())
+
