@@ -54,14 +54,18 @@ def onConnect():
     if ui_chat.user_id is not None:
         print("Connection recovered! Now i should recover your login.")
         ui_chat.isRecovering = True
-        clearContacts()
-        clearChatView()
-        clearMessages()
         login()
     else:
         print("Connected")
 
 def onClosed():
+    if ui_chat.user_id is not None:
+        clearContacts()
+        clearChatView()
+        clearMessages()
+        #showdialog("Connection lost... Trying to take it back.")
+    else:
+        showdialog("Connection lost! But i'm trying to connect again each 5 seconds.")
     print("Connection closed")
 
 def onMessageReceived(message):
@@ -154,7 +158,7 @@ def onMessageReceived(message):
 
 
 SocketClient = client.SocketClient(('5.79.72.99', 15000))
-
+#SocketClient = client.SocketClient(("localhost", 15000))
 #SocketClient.registerOnReceiveCallback(onMessageReceived)
 SocketClient.onReceiveCallback.connect(onMessageReceived)
 SocketClient.registerOnConnectCallback(onConnect)
@@ -166,7 +170,7 @@ SocketClient.registerOnConnectionClosedCallback(onClosed)
 #=============== LOGIN SIGNALS ======================
 
 def login():
-    if ui_chat.isRecovering:  # REFLECTION
+    if ui_chat.isRecovering:
         email = ui_chat.email
         password = ui_chat.password
     else:
@@ -455,7 +459,7 @@ class MessageWidget(QtWidgets.QWidget):
 
         self.image = QtGui.QImage()
         bytearr = QtCore.QByteArray.fromBase64(bytes(b, "utf8"))
-        self.image.loadFromData(bytearr, 'PNG')
+        self.image.loadFromData(bytearr)
 
         self.media.setPixmap(QtGui.QPixmap.fromImage(self.image))
 
@@ -807,6 +811,7 @@ def fetchSelectedChat():
 fetchContacts()
 
 code = app.exec_()
+ui_chat.user_id = None
 SocketClient.close()
 sys.exit(code)
 

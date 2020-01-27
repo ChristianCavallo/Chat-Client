@@ -3,6 +3,7 @@ import struct
 import sys
 import json
 import time
+from threading import Thread
 
 from Crypto.PublicKey import RSA
 from Crypto.Cipher import AES
@@ -10,8 +11,6 @@ from Crypto.Cipher import PKCS1_OAEP
 import rsa as rsa_
 import base64
 from Crypto.Util.Padding import pad
-
-from threading import Thread
 
 from PyQt5 import QtCore
 
@@ -102,7 +101,6 @@ class Cryptographer(object):
         return original
 
 
-
 class SocketClient(QtCore.QThread):
     onReceiveCallback = QtCore.pyqtSignal(object);
     onConnectCallback = None;
@@ -120,6 +118,9 @@ class SocketClient(QtCore.QThread):
         QtCore.QThread.__init__(self)
         self.start()
 
+        self.keepAliveThread = Thread(target = self._keepAlive)
+        self.receivedSomething = False
+
     def registerOnReceiveCallback(self, callback):
         self.onReceiveCallback = callback
 
@@ -136,6 +137,18 @@ class SocketClient(QtCore.QThread):
         self.crypto = Cryptographer()
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+    def _keepAlive(self):
+        while not self.stopFlag:
+            time.sleep(30)
+            if self.receivedSomething:
+                self.receivedSomething = False
+                continue
+
+            msg = { "id" : 100 }
+            msg = json.dumps(msg)
+            self.sendMessage(msg)
+
+
     def run(self):
         while not self.stopFlag:
             try:
@@ -144,7 +157,7 @@ class SocketClient(QtCore.QThread):
             except:
                 print("Can't reach the server.")
                 #self.close()
-                time.sleep(1000)
+                time.sleep(5)
                 continue
 
             try:
@@ -217,10 +230,11 @@ class SocketClient(QtCore.QThread):
                         content = self.crypto.decrypt_AES(content)
                         message = content.decode("utf-8",)
                         j = json.loads(message)
-
+                        self.receivedSomething = True
                         self.onReceiveCallback.emit(message)
 
-            except ConnectionError:
+
+            except:
                 print("Socket error: " + str(sys.stderr))
 
             print("Connection lost.")
@@ -240,17 +254,14 @@ class SocketClient(QtCore.QThread):
                 part2 = struct.pack("<I", len(content))
 
             part4 = struct.pack("<I", 43214321)
-            self.sock.send(part1)
-            self.sock.send(part2)
 
-            sent = self.sock.send(content)
-            #print("Payload was: " + str(len(content)) + " and sent is: " + str(sent))
-            self.sock.send(part4)
 
-            # print("Message sent to the server: " + message)
+            self.sock.sendall(part1 + part2 + content + part4)
+
+
         except:
-            print("An exception occurred: " + str(sys.stderr))
-            #self.close()
+            print("Exception on sending: " + str(sys.stderr))
+            self.close(True)
 
     def sendKey(self):
         keyJson = {"id": 0,
@@ -269,3 +280,6 @@ class SocketClient(QtCore.QThread):
             print("Resetting the connection.")
             self.reset()
         #self.events.onClosed()
+
+
+
