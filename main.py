@@ -145,6 +145,7 @@ def onMessageReceived(message):
             i = ui_chat.messagesList.itemWidget(ui_chat.messagesList.item(index))
 
             if i.media_id == j["media-id"]:
+                
                 i.setMedia(j["media"])
                 Cacher.cacheMedia(j["media-id"], j["media"])
                 break;

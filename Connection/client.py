@@ -256,8 +256,31 @@ class SocketClient(QtCore.QThread):
             part4 = struct.pack("<I", 43214321)
 
 
-            self.sock.sendall(part1 + part2 + content + part4)
+            self.sock.sendall(part1 + part2)
 
+            if len(content) > 100*1024:
+                print("I'm sending data larger than 100kb. I'm reporting the progress:")
+                l = len(content)
+                a = 0
+                chunkSize = 100*1024
+                progress = 0
+                while(l > 0):
+                    if l > chunkSize:
+                        self.sock.sendall(content[a:(a+chunkSize)])
+                        a += chunkSize
+                        l -= chunkSize
+                        progress = round(100 * a / (a+l), 2)
+                        print("Sending percentage: " + str(progress) + "%")
+                    else:
+                        self.sock.sendall(content[a:(a+l)])
+                        a += l
+                        l = 0
+
+                print("All sent.")
+            else:
+                self.sock.sendall(content)
+
+            self.sock.sendall(part4)
 
         except:
             print("Exception on sending: " + str(sys.stderr))
